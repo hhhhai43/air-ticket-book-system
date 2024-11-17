@@ -1,0 +1,43 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: fly-ticket-order
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/fly-ticket-order
+    username: root
+    password: 123456
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 3
+    lettuce:
+      pool:
+        max-active: 10
+        max-idle: 10
+        min-idle: 1
+        time-between-eviction-runs: 10s
+  jackson:
+    default-property-inclusion: non_null # JSON处理时忽略非空字段
+mybatis-plus:
+  type-aliases-package: com.fly-ticket-order.entity # 别名扫描包
+logging:
+  level:
+    com.fly-ticket-order: debug
+
+fly:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: FNUAWkwmFzSXN_8HjLltSXubliTSDDtBTqw4aXEC9KY=
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+    # 设置jwt签名加密时使用的秘钥
+    user-secret-key: FNUAWkwmFzSXN_8HjLltSXubliTSDDtBTqw4aXEC9KY=
+    # 设置jwt过期时间
+    user-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    user-token-name: authentication

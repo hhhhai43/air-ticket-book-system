@@ -16,4 +16,5 @@ public class MessageConstant {
     public static final String ORDER_STATUS_ERROR = "订单状态错误";
     public static final String ORDER_NOT_FOUND = "订单不存在";
     public static final String PASSENGER_ALREADY_EXIST = "乘客信息已存在";
+    public static final String ID_NAME_ERROR = "身份证和姓名校验错误";
 }

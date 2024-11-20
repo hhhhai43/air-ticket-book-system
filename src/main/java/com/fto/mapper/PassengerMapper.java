@@ -1,12 +1,18 @@
 package com.fto.mapper;
 
-import com.fto.annotation.AutoFill;
-import com.fto.enumeration.OperationType;
+import com.fto.pojo.dto.user.PassengerDTO;
+import com.fto.pojo.dto.user.PassengerPageQueryDTO;
 import com.fto.pojo.entity.Passenger;
-import com.fto.pojo.entity.User;
+import com.fto.pojo.vo.PassengerVO;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
+/**
+ * 乘客Mapper类
+ */
 @Mapper
 public interface PassengerMapper {
     /**
@@ -15,7 +21,7 @@ public interface PassengerMapper {
      * @return
      */
     @Select("select * from passenger where id_number = #{idNumber}")
-    Passenger getByIdNumber(String idNumber);
+    Passenger getPassengerByIdNumber(String idNumber);
 
     /**
      * 添加乘客
@@ -30,5 +36,32 @@ public interface PassengerMapper {
      */
     void addPassengerToUser(Long userId, Long passengerId, String phonenumber);
 
+    /**
+     * 查询用户和乘客是否关联
+     * @param userId
+     * @param passengerId
+     * @return
+     */
     boolean getAssociation(Long userId, Long passengerId);
+
+    /**
+     * 分页查询乘客信息及电话号码
+     * @param passengerPageQueryDTO
+     * @return
+     */
+    Page<PassengerVO> pageQueryWithPhone(PassengerPageQueryDTO passengerPageQueryDTO);
+
+    /**
+     * 根据id批量删除乘客与用户关联信息
+     * @param userId
+     * @param ids
+     */
+    void deleteByIds(Long userId, List<Long> ids);
+
+    /**
+     * 更新乘客信息
+     * @param passengerId
+     * @param passengerDTO
+     */
+    void updatePassenger(Long passengerId, PassengerDTO passengerDTO);
 }

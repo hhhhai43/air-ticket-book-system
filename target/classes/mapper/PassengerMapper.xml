@@ -15,10 +15,41 @@
         (#{userId},#{passengerId}, #{phonenumber})
     </insert>
 
+    <update id="updatePassenger">
+        update user_passenger
+        <set>
+            <if test="passengerDTO.phonenumber != null">passenger_phonenumber = #{passengerDTO.phonenumber},</if>
+        </set>
+        where user_id = #{passengerDTO.userId} and passenger_id = #{passengerId}
+    </update>
+
+    <delete id="deleteByIds">
+        delete from user_passenger where passenger_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        AND user_id = #{userId}
+    </delete>
+
     <select id="getAssociation" resultType="java.lang.Boolean">
         SELECT COUNT(*) > 0 AS association_exists
         FROM user_passenger
         WHERE user_id = #{userId} AND passenger_id = #{passengerId}
     </select>
 
+    <select id="pageQueryWithPhone" resultType="com.fto.pojo.vo.PassengerVO">
+        SELECT
+        p.id AS id,
+        p.name AS name,
+        p.id_number AS idNumber,
+        up.passenger_phonenumber AS phoneNumber
+        FROM
+        passenger p
+        JOIN
+        user_passenger up ON p.id = up.passenger_id
+        WHERE
+        up.user_id = #{id}
+        ORDER BY
+        p.id DESC
+    </select>
 </mapper>

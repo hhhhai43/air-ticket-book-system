@@ -1,12 +1,12 @@
-package com.fto.pojo.dto;
+package com.fto.pojo.dto.user;
 
 import lombok.Data;
 
 /**
- * 员工登录接收信息
+ * 用户登录接收信息
  */
 @Data
-public class EmployeeLoginDTO {
+public class UserLoginDTO {
     /**
      *用户名
      */

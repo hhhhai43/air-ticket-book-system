@@ -31,14 +31,19 @@ public class User {
     private String password;
 
     /**
-     * 电话号码
-     */
-    private String phonenumber;
-
-    /**
      * 权限
      */
     private Integer isRoot;
+
+    /**
+     * 邮箱号
+     */
+    private String email;
+
+    /**
+     * 性别
+     */
+    private Integer gender;
 
     /**
      * 创建时间

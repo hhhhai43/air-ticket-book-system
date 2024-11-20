@@ -40,4 +40,12 @@ fly:
     # 设置jwt过期时间
     user-ttl: 7200000
     # 设置前端传递过来的令牌名称
-    user-token-name: authentication
+    user-token-name: token
+
+mybatis:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.sky.entity
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true

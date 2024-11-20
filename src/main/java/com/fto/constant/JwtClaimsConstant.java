@@ -1,5 +1,8 @@
 package com.fto.constant;
 
+/**
+ * JWT claims常量类
+ */
 public class JwtClaimsConstant {
 
     public static final String EMP_ID = "empId";

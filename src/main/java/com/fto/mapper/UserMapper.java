@@ -1,6 +1,10 @@
 package com.fto.mapper;
 
+import com.fto.annotation.AutoFill;
+import com.fto.enumeration.OperationType;
+import com.fto.pojo.dto.user.UserRegisterDTO;
 import com.fto.pojo.entity.User;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -13,4 +17,27 @@ public interface UserMapper {
      */
     @Select("select * from users where username = #{username}")
     User getByUsername(String username);
+
+    /**
+     * 根据id查询用户
+     * @param userId
+     * @return
+     */
+    @Select("select * from users where id = #{userId}")
+    User getByUserId(Long userId);
+
+    /**
+     * 新增用户
+     * @param user
+     */
+    @AutoFill(value = OperationType.INSERT)
+    void addUser(User user);
+
+
+    /**
+     * 修改用户信息
+     * @param user
+     */
+    @AutoFill(value = OperationType.UPDATE)
+    void updateUser(User user);
 }

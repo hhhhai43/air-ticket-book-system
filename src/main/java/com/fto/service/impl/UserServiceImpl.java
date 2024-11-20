@@ -3,15 +3,21 @@ package com.fto.service.impl;
 import com.fto.constant.JwtClaimsConstant;
 import com.fto.constant.MessageConstant;
 import com.fto.constant.RootConstant;
+import com.fto.context.BaseContext;
 import com.fto.mapper.UserMapper;
-import com.fto.pojo.dto.Result;
-import com.fto.pojo.dto.UserLoginDTO;
+import com.fto.pojo.result.Result;
+import com.fto.pojo.dto.user.UserInformationDTO;
+import com.fto.pojo.dto.user.UserLoginDTO;
+import com.fto.pojo.dto.user.UserPasswordExchangeDTO;
+import com.fto.pojo.dto.user.UserRegisterDTO;
 import com.fto.pojo.entity.User;
+import com.fto.pojo.vo.UserInformationVO;
 import com.fto.pojo.vo.UserLoginVO;
 import com.fto.properties.JwtProperties;
 import com.fto.service.UserService;
 import com.fto.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -20,6 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * 用户服务实现类
+ */
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
@@ -29,6 +38,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private JwtProperties jwtProperties;
 
+    /**
+     * 用户登录
+     * @param userLoginDTO
+     * @return
+     */
     @Override
     public Result login(UserLoginDTO userLoginDTO) {
         String username = userLoginDTO.getUsername();
@@ -59,10 +73,10 @@ public class UserServiceImpl implements UserService {
 
         //登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
-        claims.put(JwtClaimsConstant.EMP_ID, user.getId());
+        claims.put(JwtClaimsConstant.USER_ID, user.getId());
         String token = JwtUtil.createJWT(
-                jwtProperties.getAdminSecretKey(),
-                jwtProperties.getAdminTtl(),
+                jwtProperties.getUserSecretKey(),
+                jwtProperties.getUserTtl(),
                 claims);
 
         UserLoginVO userLoginVO = UserLoginVO.builder()
@@ -73,5 +87,87 @@ public class UserServiceImpl implements UserService {
 
         //3、返回实体对象
         return Result.success(userLoginVO);
+    }
+
+    /**
+     * 新增用户
+     * @param userRegisterDTO
+     * @return
+     */
+    @Override
+    public Result register(UserRegisterDTO userRegisterDTO) {
+        // 查询是否存在用户名
+        String username = userRegisterDTO.getUsername();
+        if (userMapper.getByUsername(username)!=null){
+            return Result.error(MessageConstant.USER+MessageConstant.ALREADY_EXISTS);
+        }
+        // 新增用户
+        String password = DigestUtils.md5DigestAsHex(userRegisterDTO.getPassword().getBytes());
+        User user = new User();
+        BeanUtils.copyProperties(userRegisterDTO, user);
+        user.setIsRoot(RootConstant.ISUSER);
+        user.setPassword(password);
+        userMapper.addUser(user);
+        return Result.success();
+    }
+
+    /**
+     * 修改密码
+     * @param userPasswordExchangeDTO
+     * @return
+     */
+    @Override
+    public Result passwordExchange(UserPasswordExchangeDTO userPasswordExchangeDTO) {
+        // 检查请求id与当前操作id是否相同
+        Long userId = userPasswordExchangeDTO.getId();
+        if(!Objects.equals(BaseContext.getCurrentId(), userId)){
+            return Result.error(MessageConstant.REQUEST_ERROR);
+        }
+        //查询原密码是否正确
+        String oldPassword = userPasswordExchangeDTO.getOldPassword();
+        User user = userMapper.getByUserId(userId);
+        if(!Objects.equals(user.getPassword(), DigestUtils.md5DigestAsHex(oldPassword.getBytes()))){
+            return Result.error(MessageConstant.WRONG_OLD_PASSWORD);
+        }
+        //修改密码
+        user.setPassword(DigestUtils.md5DigestAsHex(userPasswordExchangeDTO.getNewPassword().getBytes()));
+        userMapper.updateUser(user);
+        return Result.success();
+    }
+
+    /**
+     * 用户个人信息查询
+     * @param id
+     * @return
+     */
+    @Override
+    public Result userInformation(Long id) {
+        // 检查请求id与当前操作id是否相同
+        if(!Objects.equals(BaseContext.getCurrentId(), id)){
+            return Result.error(MessageConstant.REQUEST_ERROR);
+        }
+        User user = userMapper.getByUserId(id);
+        UserInformationVO userInformationVO = new UserInformationVO();
+        BeanUtils.copyProperties(user, userInformationVO);
+        return Result.success(userInformationVO);
+    }
+
+    /**
+     * 修改个人信息
+     * @param userInformationDTO
+     * @return
+     */
+    @Override
+    public Result userInformationUpdate(UserInformationDTO userInformationDTO) {
+        // 检查请求id与当前操作id是否相同
+        Long id = userInformationDTO.getId();
+        if(!Objects.equals(BaseContext.getCurrentId(), id)){
+            return Result.error(MessageConstant.REQUEST_ERROR);
+        }
+        // 获取用户信息并修改
+        User user = userMapper.getByUserId(id);
+        BeanUtils.copyProperties(userInformationDTO,user);
+        userMapper.updateUser(user);
+        return Result.success();
     }
 }

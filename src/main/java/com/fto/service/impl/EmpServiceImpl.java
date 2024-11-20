@@ -3,10 +3,9 @@ package com.fto.service.impl;
 import com.fto.constant.JwtClaimsConstant;
 import com.fto.constant.MessageConstant;
 import com.fto.constant.RootConstant;
-import com.fto.exception.AccountNotFoundException;
 import com.fto.mapper.EmpMapper;
-import com.fto.pojo.dto.EmployeeLoginDTO;
-import com.fto.pojo.dto.Result;
+import com.fto.pojo.dto.emp.EmployeeLoginDTO;
+import com.fto.pojo.result.Result;
 import com.fto.pojo.entity.Employee;
 import com.fto.pojo.vo.EmployeeLoginVO;
 import com.fto.properties.JwtProperties;
@@ -47,7 +46,7 @@ public class EmpServiceImpl implements EmpService {
         //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
         if (employee == null) {
             //账号不存在
-            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+            return Result.error(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
         //密码比对

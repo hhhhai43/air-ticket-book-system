@@ -5,6 +5,8 @@ import com.fto.context.BaseContext;
 import com.fto.properties.JwtProperties;
 import com.fto.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
 
 /**
  * jwt令牌校验的拦截器
@@ -47,17 +50,35 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
         //1、从请求头中获取令牌
         String token = request.getHeader(jwtProperties.getUserTokenName());
 
+/*      打印http请求日志信息
+        log.info("jwt校验: {}", token);
+        log.info("User token name: {}", jwtProperties.getUserTokenName());
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            log.info("Header: {} = {}", headerName, request.getHeader(headerName));
+        }*/
+
+
         //2、校验令牌
         try {
             log.info("jwt校验:{}", token);
             Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
             Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
-            log.info("当前用户id：", userId);
+            log.info("当前用户id：{}", userId);
             BaseContext.setCurrentId(userId);
-            //3、通过，放行
             return true;
+        } catch (ExpiredJwtException ex) {
+            log.error("JWT已过期: {}", ex.getMessage());
+            response.setStatus(401);
+            return false;
+        } catch (SignatureException ex) {
+            log.error("JWT签名验证失败: {}", ex.getMessage());
+            response.setStatus(401);
+            return false;
         } catch (Exception ex) {
-            //4、不通过，响应401状态码
+            log.error("JWT校验失败: {}", ex.getMessage(), ex);
             response.setStatus(401);
             return false;
         }

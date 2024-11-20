@@ -1,5 +1,8 @@
 package com.fto.context;
 
+/**
+ * 线程上下文
+ */
 public class BaseContext {
 
     public static ThreadLocal<Long> threadLocal = new ThreadLocal<>();

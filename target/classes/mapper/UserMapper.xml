@@ -16,4 +16,19 @@
         order by sort asc , create_time desc
     </select>-->
 
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id"><!--将主键值返回-->
+        insert into users (username, password, is_root)
+        values
+        (#{username},#{password},#{isRoot})
+    </insert>
+
+    <update id="updateUser">
+        update users
+        <set>
+            <if test="password != null">password = #{password},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="email != null">email = #{email},</if>
+        </set>
+        where id = #{id}
+    </update>
 </mapper>

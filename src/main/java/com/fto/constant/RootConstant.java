@@ -5,7 +5,7 @@ package com.fto.constant;
  */
 public class RootConstant {
 
-    //原告
+    //员工
     public static final Integer ISEMPLOYEE = 1;
 
     //用户

@@ -29,7 +29,6 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     /**
      * 注册自定义拦截器
-     *
      * @param registry
      */
     protected void addInterceptors(InterceptorRegistry registry) {
@@ -40,6 +39,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/user/login")
+                .excludePathPatterns("/user/user/register")
                 .excludePathPatterns("/user/shup/status");
     }
 
@@ -61,7 +61,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         log.info("扩展消息转换器");
         //创建一个转换器对象
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        //为消息转换器设置一个对象转换器，对象转换器可以将Java对象序列化为jsaon数据
+        //为消息转换器设置一个对象转换器，对象转换器可以将Java对象序列化为json数据
         converter.setObjectMapper(new JacksonObjectMapper());
         //将自己的消息转化器加入容器中
         converters.add(0, converter);

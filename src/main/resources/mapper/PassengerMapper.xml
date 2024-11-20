@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fto.mapper.PassengerMapper">
+
+    <insert id="addPassenger" useGeneratedKeys="true" keyProperty="id"><!--将主键值返回-->
+        insert into passenger (name, id_number)
+        values
+        (#{name},#{idNumber})
+    </insert>
+
+    <insert id="addPassengerToUser">
+        insert into user_passenger (user_id, passenger_id, passenger_phonenumber)
+        values
+        (#{userId},#{passengerId}, #{phonenumber})
+    </insert>
+
+    <select id="getAssociation" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0 AS association_exists
+        FROM user_passenger
+        WHERE user_id = #{userId} AND passenger_id = #{passengerId}
+    </select>
+
+</mapper>

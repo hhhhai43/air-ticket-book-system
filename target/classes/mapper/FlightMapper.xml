@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fto.mapper.FlightMapper">
+
+ <!--   <select id="pageQuery" resultType="com.sky.entity.Category">
+        select * from category
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+        </where>
+        order by sort asc , create_time desc
+    </select>-->
+
+    <insert id="addFlight" useGeneratedKeys="true" keyProperty="id"><!--将主键值返回-->
+        insert into flights (flight_number, airline, departure_airport, arrival_airport, date, departure_time, arrival_time, departure_city, arrival_city, total_tickets)
+        values
+        (#{flightNumber},#{airline},#{departureAirport},#{arrivalAirport},#{date},#{departureTime},#{arrivalTime},#{departureCity},#{arrivalCity},#{totalTickets})
+    </insert>
+
+    <select id="pageQuery" resultType="com.fto.pojo.vo.FlightVO">
+        SELECT
+        id, airline, departure_airport, arrival_airport, date,
+        departure_time, arrival_time, departure_city, arrival_city
+        FROM
+        flights
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="airline != null and airline != ''">
+                AND airline = #{airline}
+            </if>
+            <if test="departureAirport != null and departureAirport != ''">
+                AND departure_airport = #{departureAirport}
+            </if>
+            <if test="arrivalAirport != null and arrivalAirport != ''">
+                AND arrival_airport = #{arrivalAirport}
+            </if>
+            <if test="date != null">
+                AND date = #{date}
+            </if>
+            <if test="departureTime != null">
+                AND departure_time &lt;= #{departureTime}
+            </if>
+            <if test="departureCity != null and departureCity != ''">
+                AND departure_city = #{DepartureCity}
+            </if>
+            <if test="arrivalCity != null and arrivalCity != ''">
+                AND arrival_city = #{ArrivalCity}
+            </if>
+        </where>
+    </select>
+
+    <!--    <update id="updateUser">
+            update users
+            <set>
+                <if test="password != null">password = #{password},</if>
+                <if test="gender != null">gender = #{gender},</if>
+                <if test="email != null">email = #{email},</if>
+            </set>
+            where id = #{id}
+        </update>-->
+</mapper>

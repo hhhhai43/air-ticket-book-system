@@ -37,7 +37,7 @@
         WHERE user_id = #{userId} AND passenger_id = #{passengerId}
     </select>
 
-    <select id="pageQueryWithPhone" resultType="com.fto.pojo.vo.PassengerVO">
+    <select id="pageQueryWithPhone" resultType="com.ato.pojo.vo.PassengerVO">
         SELECT
         p.id AS id,
         p.name AS name,

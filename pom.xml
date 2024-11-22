@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.flyOrder</groupId>
-	<artifactId>fly-ticket-order</artifactId>
+	<artifactId>air-ticket-order</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>fly-ticket-order</name>
 	<description>A project for ordering fly tickets</description>
@@ -49,7 +49,9 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+
 		</dependency>
+
 		<!--MySQL-->
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -74,6 +76,7 @@
 			<artifactId>mybatis-plus-boot-starter</artifactId>
 			<version>3.4.3</version>
 		</dependency>
+
 		<!--hutool-->
 		<dependency>
 			<groupId>cn.hutool</groupId>
@@ -94,6 +97,7 @@
 			<version>3.13.6</version>
 		</dependency>
 
+		<!-- json -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>

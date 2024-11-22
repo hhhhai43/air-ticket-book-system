@@ -4,6 +4,9 @@ import com.fto.pojo.entity.Employee;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+/**
+ * 员工mapper
+ */
 @Mapper
 public interface EmpMapper {
     /**

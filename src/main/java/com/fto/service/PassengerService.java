@@ -1,7 +1,6 @@
 package com.fto.service;
 
 import com.fto.pojo.dto.user.PassengerPageQueryDTO;
-import com.fto.pojo.result.PageResult;
 import com.fto.pojo.result.Result;
 import com.fto.pojo.dto.user.PassengerDTO;
 

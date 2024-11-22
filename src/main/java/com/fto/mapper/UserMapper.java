@@ -2,9 +2,7 @@ package com.fto.mapper;
 
 import com.fto.annotation.AutoFill;
 import com.fto.enumeration.OperationType;
-import com.fto.pojo.dto.user.UserRegisterDTO;
 import com.fto.pojo.entity.User;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

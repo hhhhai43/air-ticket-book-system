@@ -1,8 +1,9 @@
 package com.ato.service.impl;
 
+import com.ato.constant.MessageConstant;
 import com.ato.mapper.FlightMapper;
 import com.ato.pojo.dto.emp.FlightDTO;
-import com.ato.pojo.dto.emp.FlightPageQueryDTO;
+import com.ato.pojo.dto.user.FlightPageQueryDTO;
 import com.ato.pojo.entity.Flight;
 import com.ato.pojo.result.PageResult;
 import com.ato.pojo.result.Result;
@@ -35,11 +36,17 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public Result addFlight(FlightDTO flightDTO) {
         // 保存信息至数据库
-        Flight flight = new Flight();
-        BeanUtils.copyProperties(flightDTO, flight);
-        flightMapper.addFlight(flight);
-        // 保存票数至redis
-        stringRedisTemplate.opsForValue().set("flight:remain_tickets:" + flight.getId(), flight.getTotalTickets().toString());
+        List<Flight> flights = flightMapper.query(flightDTO);
+        if(flights.isEmpty()){
+            Flight flight = new Flight();
+            BeanUtils.copyProperties(flightDTO, flight);
+            flightMapper.addFlight(flight);
+            // 保存票数至redis
+            stringRedisTemplate.opsForValue().set("flight:remain_tickets:" + flight.getId(), flight.getTotalTickets().toString());
+        }else{
+            log.info("{}",flights);
+            return Result.error(MessageConstant.FLIGHT_ALREADYEXIST);
+        }
         return Result.success();
     }
 
@@ -53,10 +60,13 @@ public class FlightServiceImpl implements FlightService {
         //select * from passenger limit 0,10
         PageHelper.startPage(flightPageQueryDTO.getPage(),flightPageQueryDTO.getPageSize());
         Page<FlightVO> page= flightMapper.pageQuery(flightPageQueryDTO);
+        log.info("{}",page);
+
 
         long total = page.getTotal();
         List<FlightVO> records = page.getResult();
         PageResult pageResult = new PageResult(total, records);
+        log.info("{}",pageResult);
         return Result.success(pageResult);
     }
 }

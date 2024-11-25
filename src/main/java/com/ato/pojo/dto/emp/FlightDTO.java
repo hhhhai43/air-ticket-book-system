@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -21,53 +23,54 @@ public class FlightDTO {
     /**
      * 航班号
      */
-    String flightNumber;
+    private String flightNumber;
 
     /**
      * 航空公司
      */
-    String airline;
+    private String airline;
 
     /**
      * 起飞机场
      */
-    String departureAirport;
+    private String departureAirport;
 
     /**
      * 落地机场
      */
-    String arrivalAirport;
+    private String arrivalAirport;
 
     /**
      * 航班日期
      */
-    Date date;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate date;
 
     /**
      * 起飞时间
      */
-    @JsonFormat(pattern = "HH:mm")
-    LocalTime departureTime;
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    private LocalTime departureTime;
 
     /**
      * 落地时间
      */
-    @JsonFormat(pattern = "HH:mm")
-    LocalTime arrivalTime;
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    private LocalTime arrivalTime;
 
     /**
      * 起飞城市
      */
-    String departureCity;
+    private String departureCity;
 
     /**
      * 落地城市
      */
-    String arrivalCity;
+    private String arrivalCity;
 
     /**
      * 总票数
      */
-    Long totalTickets;
+    private Long totalTickets;
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.fto.mapper.FlightMapper">
+<mapper namespace="com.ato.mapper.FlightMapper">
 
  <!--   <select id="pageQuery" resultType="com.sky.entity.Category">
         select * from category
@@ -29,9 +29,6 @@
         FROM
         flights
         <where>
-            <if test="id != null">
-                AND id = #{id}
-            </if>
             <if test="airline != null and airline != ''">
                 AND airline = #{airline}
             </if>
@@ -44,14 +41,33 @@
             <if test="date != null">
                 AND date = #{date}
             </if>
+            <if test="date == null">
+                AND date >= CURRENT_DATE()
+            </if>
             <if test="departureTime != null">
                 AND departure_time &lt;= #{departureTime}
             </if>
             <if test="departureCity != null and departureCity != ''">
-                AND departure_city = #{DepartureCity}
+                AND departure_city = #{departureCity}
             </if>
             <if test="arrivalCity != null and arrivalCity != ''">
-                AND arrival_city = #{ArrivalCity}
+                AND arrival_city = #{arrivalCity}
+            </if>
+        </where>
+        ORDER BY departure_time ASC
+    </select>
+    <select id="query" resultType="com.ato.pojo.entity.Flight">
+        SELECT
+        id, airline, departure_airport, arrival_airport, date,
+        departure_time, arrival_time, departure_city, arrival_city
+        FROM
+        flights
+        <where>
+            <if test="airline != null and airline != ''">
+                AND airline = #{airline}
+            </if>
+            <if test="date != null">
+                AND date = #{date}
             </if>
         </where>
     </select>

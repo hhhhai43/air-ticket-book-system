@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.fto.mapper.PassengerMapper">
+<mapper namespace="com.ato.mapper.PassengerMapper">
 
     <insert id="addPassenger" useGeneratedKeys="true" keyProperty="id"><!--将主键值返回-->
         insert into passenger (name, id_number)
@@ -37,7 +37,7 @@
         WHERE user_id = #{userId} AND passenger_id = #{passengerId}
     </select>
 
-    <select id="pageQueryWithPhone" resultType="com.fto.pojo.vo.PassengerVO">
+    <select id="pageQueryWithPhone" resultType="com.ato.pojo.vo.PassengerVO">
         SELECT
         p.id AS id,
         p.name AS name,

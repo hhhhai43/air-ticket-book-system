@@ -75,6 +75,7 @@ public class PassengerServiceImpl implements PassengerService {
         //select * from passenger limit 0,10
         PageHelper.startPage(passengerPageQueryDTO.getPage(),passengerPageQueryDTO.getPageSize());
         Page<PassengerVO> page= passengerMapper.pageQueryWithPhone(passengerPageQueryDTO);
+        log.info("{}",page);
 
         long total = page.getTotal();
         List<PassengerVO> records = page.getResult();

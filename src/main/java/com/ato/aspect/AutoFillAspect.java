@@ -25,7 +25,7 @@ public class AutoFillAspect {
     /**
      * 切入点
      */
-    @Pointcut("execution(* com.fto.mapper.*.*(..)) && @annotation(com.fto.annotation.AutoFill)")
+    @Pointcut("execution(* com.ato.mapper.*.*(..)) && @annotation(com.ato.annotation.AutoFill)")
     public void autoFillPointCut(){}
 
     @Before("autoFillPointCut()")

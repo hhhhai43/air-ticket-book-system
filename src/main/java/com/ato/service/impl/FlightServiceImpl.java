@@ -1,7 +1,9 @@
 package com.ato.service.impl;
 
 import com.ato.constant.MessageConstant;
+import com.ato.constant.RedisConstants;
 import com.ato.mapper.FlightMapper;
+import com.ato.pojo.dto.emp.DelayDTO;
 import com.ato.pojo.dto.emp.FlightDTO;
 import com.ato.pojo.dto.user.FlightPageQueryDTO;
 import com.ato.pojo.entity.Flight;
@@ -14,10 +16,14 @@ import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -32,9 +38,10 @@ public class FlightServiceImpl implements FlightService {
      * @param flightDTO
      * @return
      */
-    // TODO 判断数据库是否已存在航班
     @Override
     public Result addFlight(FlightDTO flightDTO) {
+        String flightKey = flightDTO.getFlightNumber() + "_" + flightDTO.getDate();//票数的field
+
         // 保存信息至数据库
         List<Flight> flights = flightMapper.query(flightDTO);
         if(flights.isEmpty()){
@@ -42,7 +49,25 @@ public class FlightServiceImpl implements FlightService {
             BeanUtils.copyProperties(flightDTO, flight);
             flightMapper.addFlight(flight);
             // 保存票数至redis
-            stringRedisTemplate.opsForValue().set("flight:remain_tickets:" + flight.getId(), flight.getTotalTickets().toString());
+            stringRedisTemplate.opsForHash().put(RedisConstants.REMAIN_TICKETS_KEY, flightKey, flight.getTotalTickets().toString());
+
+            //TODO 专门实现一个初始化座位方法，实现多种座位表的添加
+
+            // 初始化座位表
+            HashOperations<String, String, String> hashOps = stringRedisTemplate.opsForHash();
+            Map<String, String> seatMap = new HashMap<>();
+
+            // 假设航班有40排座位，每排8个座位，座位号从 1A 到 40H
+            for (int row = 1; row <= 40; row++) {
+                for (char seat = 'A'; seat <= 'H'; seat++) {
+                    String seatNumber = row + String.valueOf(seat);
+                    seatMap.put(seatNumber, ""); // 空字符串表示座位尚未被占用
+                }
+            }
+
+            // 将座位信息存储到 Redis 中，使用航班号+日期作为键，座位号作为字段，初始化值为空
+            hashOps.putAll(RedisConstants.FLIGHT_SEATS_PREFIX + flightKey, seatMap);
+
         }else{
             log.info("{}",flights);
             return Result.error(MessageConstant.FLIGHT_ALREADYEXIST);
@@ -57,16 +82,27 @@ public class FlightServiceImpl implements FlightService {
      */
     @Override
     public Result pageQueryFlight(FlightPageQueryDTO flightPageQueryDTO) {
+        flightPageQueryDTO.setCurrentDate(LocalDate.now());
         //select * from passenger limit 0,10
         PageHelper.startPage(flightPageQueryDTO.getPage(),flightPageQueryDTO.getPageSize());
         Page<FlightVO> page= flightMapper.pageQuery(flightPageQueryDTO);
         log.info("{}",page);
-
 
         long total = page.getTotal();
         List<FlightVO> records = page.getResult();
         PageResult pageResult = new PageResult(total, records);
         log.info("{}",pageResult);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 修改航班延迟状态
+     * @param delayDTO
+     * @return
+     */
+    @Override
+    public Result updateDelay(DelayDTO delayDTO) {
+        flightMapper.updateDelay(delayDTO);
+        return Result.success();
     }
 }

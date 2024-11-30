@@ -6,6 +6,9 @@ import com.ato.pojo.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+/**
+ * 用户Mapper
+ */
 @Mapper
 public interface UserMapper {
     /**

@@ -32,8 +32,8 @@ public class FlightPageQueryDTO {
     /**
      * 每页记录数
      */
-
     private int pageSize;
+
     /**
      * 航空公司
      */
@@ -54,6 +54,12 @@ public class FlightPageQueryDTO {
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+
+    /**
+     * 当前日期
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate currentDate;
 
     /**
      * 起飞时间

@@ -97,7 +97,7 @@
 			<version>3.13.6</version>
 		</dependency>
 
-		<!-- json -->
+		<!-- JWT -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -138,7 +138,19 @@
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
 			<version>1.4.6</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+		<!-- json -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.76</version>
+		</dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

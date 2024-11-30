@@ -17,14 +17,24 @@
     </select>-->
 
     <insert id="addFlight" useGeneratedKeys="true" keyProperty="id"><!--将主键值返回-->
-        insert into flights (flight_number, airline, departure_airport, arrival_airport, date, departure_time, arrival_time, departure_city, arrival_city, total_tickets)
+        insert into flights (flight_number, airline, price, departure_airport, arrival_airport, date, departure_time, arrival_time, departure_city, arrival_city, total_tickets)
         values
-        (#{flightNumber},#{airline},#{departureAirport},#{arrivalAirport},#{date},#{departureTime},#{arrivalTime},#{departureCity},#{arrivalCity},#{totalTickets})
+        (#{flightNumber},#{airline},#{price},#{departureAirport},#{arrivalAirport},#{date},#{departureTime},#{arrivalTime},#{departureCity},#{arrivalCity},#{totalTickets})
     </insert>
+
+    <update id="updateDelay">
+        update flights
+        <set>
+            <if test="delay != null">delay = #{delay},</if>
+            <if test="delayTime != null">delay_time = #{delayTime},</if>
+            <if test="delayReason != null">delay_reason = #{delayReason},</if>
+        </set>
+        where id = #{id}
+    </update>
 
     <select id="pageQuery" resultType="com.ato.pojo.vo.FlightVO">
         SELECT
-        id, airline, departure_airport, arrival_airport, date,
+        id, airline, price, departure_airport, arrival_airport, date,
         departure_time, arrival_time, departure_city, arrival_city
         FROM
         flights
@@ -39,10 +49,21 @@
                 AND arrival_airport = #{arrivalAirport}
             </if>
             <if test="date != null">
-                AND date = #{date}
+                <!-- 如果日期不为空且是今天 -->
+                <if test="date == currentDate"> <!-- 判断传入的日期是否是今天 -->
+                    AND date = CURRENT_DATE()
+                    AND departure_time >= DATE_ADD(NOW(), INTERVAL 2 HOUR)
+                </if>
+                <!-- 如果日期不为空且不是今天 -->
+                <if test="date != currentDate"> <!-- 判断传入的日期是否不是今天 -->
+                    AND date = #{date}
+                </if>
             </if>
+
+            <!-- 如果日期为空 -->
             <if test="date == null">
-                AND date >= CURRENT_DATE()
+                AND date > CURRENT_DATE()
+                OR (date = CURRENT_DATE() AND departure_time >= DATE_ADD(NOW(), INTERVAL 2 HOUR))
             </if>
             <if test="departureTime != null">
                 AND departure_time &lt;= #{departureTime}
@@ -54,17 +75,18 @@
                 AND arrival_city = #{arrivalCity}
             </if>
         </where>
-        ORDER BY departure_time ASC
+        ORDER BY date ASC, departure_time ASC
     </select>
+
     <select id="query" resultType="com.ato.pojo.entity.Flight">
         SELECT
-        id, airline, departure_airport, arrival_airport, date,
+        id, airline, price, departure_airport, arrival_airport, date,
         departure_time, arrival_time, departure_city, arrival_city
         FROM
         flights
         <where>
-            <if test="airline != null and airline != ''">
-                AND airline = #{airline}
+            <if test="flightNumber != null and flightNumber != ''">
+                AND flight_number = #{flightNumber}
             </if>
             <if test="date != null">
                 AND date = #{date}
@@ -72,13 +94,4 @@
         </where>
     </select>
 
-    <!--    <update id="updateUser">
-            update users
-            <set>
-                <if test="password != null">password = #{password},</if>
-                <if test="gender != null">gender = #{gender},</if>
-                <if test="email != null">email = #{email},</if>
-            </set>
-            where id = #{id}
-        </update>-->
 </mapper>

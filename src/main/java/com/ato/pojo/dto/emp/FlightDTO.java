@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
@@ -29,6 +30,11 @@ public class FlightDTO {
      * 航空公司
      */
     private String airline;
+
+    /**
+     * 机票金额
+     */
+    private BigDecimal price;
 
     /**
      * 起飞机场

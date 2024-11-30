@@ -13,10 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PassengerDTO {
-    /**
-     * 添加乘客的用户id
-     */
-    private Long userId;
 
     /**
      * 姓名

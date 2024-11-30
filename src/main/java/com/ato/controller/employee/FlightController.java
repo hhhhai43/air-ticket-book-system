@@ -1,5 +1,6 @@
 package com.ato.controller.employee;
 
+import com.ato.pojo.dto.emp.DelayDTO;
 import com.ato.pojo.dto.emp.FlightDTO;
 import com.ato.pojo.result.Result;
 import com.ato.service.FlightService;
@@ -27,5 +28,12 @@ public class FlightController {
         return flightService.addFlight(flightDTO);
     }
 
-
+    /**
+     * 修改航班延误状态
+     */
+    @PutMapping("/updateDelay")
+    public Result updateDelay(@RequestBody DelayDTO delayDTO){
+        log.info("延误信息：{}",delayDTO);
+        return flightService.updateDelay(delayDTO);
+    }
 }

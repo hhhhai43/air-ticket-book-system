@@ -29,6 +29,9 @@ public interface PassengerMapper {
      */
     void addPassenger(Passenger passenger);
 
+    @Select("select id from passenger where id_number = #{idNumber}")
+    Long getIdByIdNumber(String idNumber);
+
     /**
      * 关联用户和乘客
      * @param userId
@@ -64,4 +67,6 @@ public interface PassengerMapper {
      * @param passengerDTO
      */
     void updatePassenger(Long passengerId, PassengerDTO passengerDTO);
+
+
 }

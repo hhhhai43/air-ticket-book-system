@@ -37,10 +37,7 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     public Result addPassenger(PassengerDTO passengerDTO) {
         // 检查请求id与当前用户id是否一致
-        Long userId = passengerDTO.getUserId();
-        if(!Objects.equals(userId, BaseContext.getCurrentId())){
-            return Result.error(MessageConstant.REQUEST_ERROR);
-        }
+        Long userId = BaseContext.getCurrentId();
 
         //判断是否已存在乘客数据
         Passenger passenger = passengerMapper.getPassengerByIdNumber(passengerDTO.getIdNumber());

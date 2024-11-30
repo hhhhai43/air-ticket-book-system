@@ -19,6 +19,11 @@ public class FlightController {
     @Autowired
     private FlightService flightService;
 
+    /**
+     * 航班查询
+     * @param flightPageQueryDTO
+     * @return
+     */
     @GetMapping("/queryFlight")
     public Result pageQueryFlight(FlightPageQueryDTO flightPageQueryDTO){
         log.info("航班条件查询:{}", flightPageQueryDTO);

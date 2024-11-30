@@ -3,7 +3,6 @@ package com.ato.mapper;
 import com.ato.pojo.dto.user.PassengerDTO;
 import com.ato.pojo.dto.user.PassengerPageQueryDTO;
 import com.ato.pojo.entity.Passenger;
-import com.ato.pojo.vo.PassengerVO;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -52,7 +51,7 @@ public interface PassengerMapper {
      * @param passengerPageQueryDTO
      * @return
      */
-    Page<PassengerVO> pageQueryWithPhone(PassengerPageQueryDTO passengerPageQueryDTO);
+    Page<com.ato.pojo.vo.PassengerVO> pageQueryWithPhone(PassengerPageQueryDTO passengerPageQueryDTO);
 
     /**
      * 根据id批量删除乘客与用户关联信息

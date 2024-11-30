@@ -34,4 +34,7 @@ public interface FlightMapper {
 
     @Select("select * from flights where id = #{id}")
     Flight queryById(Long flightId);
+
+    @Select("SELECT * FROM flights WHERE flight_number = #{flightNumber} AND DATE(departure_time) = #{date}")
+    Flight findByFlightNumberAndDate(String flightNumber, String date);
 }

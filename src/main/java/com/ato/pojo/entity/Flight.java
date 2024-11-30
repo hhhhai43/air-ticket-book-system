@@ -60,14 +60,17 @@ public class Flight {
     /**
      * 起飞时间
      */
-    @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime departureTime;
+    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime departureTime;
 
     /**
      * 落地时间
      */
-    @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime arrivalTime;
+    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime arrivalTime;
+
 
     /**
      * 起飞城市

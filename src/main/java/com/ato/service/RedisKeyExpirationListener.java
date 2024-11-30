@@ -1,6 +1,10 @@
-package com.ato.utils;
+package com.ato.service;
 
 import com.ato.constant.RedisConstants;
+import com.ato.enumeration.OrderStatus;
+import com.ato.mapper.FlightMapper;
+import com.ato.mapper.OrderMapper;
+import com.ato.pojo.entity.Flight;
 import com.ato.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,12 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private FlightMapper flightMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer) {
         super(listenerContainer);
@@ -53,6 +63,25 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
                 // 这个方法会根据订单 ID 执行相应的座位释放操作
                 orderService.releaseSeats(orderId);
             }
+
+            // 判断过期的 key 是否是座位信息的 key (例如：FLIGHT_SEATS_PREFIX + flightKey)
+            if (expiredKey.startsWith(RedisConstants.FLIGHT_SEATS_PREFIX)) {
+                // 提取航班号和日期
+                String flightKey = expiredKey.substring(RedisConstants.FLIGHT_SEATS_PREFIX.length());
+                String[] parts = flightKey.split("_");
+                if (parts.length == 2) {
+                    String flightNumber = parts[0];
+                    String date = parts[1];
+
+                    // 根据航班号和日期获取航班 ID
+                    Flight flight = flightMapper.findByFlightNumberAndDate(flightNumber, date);
+                    if (flight != null) {
+                        // 更新相关订单状态为“已结束”
+                        orderMapper.updateOrderStatusByFlightId(flight.getId(), String.valueOf(OrderStatus.COMPLETED));
+                    }
+                }
+            }
+
         } catch (Exception e) {
             // 记录异常信息并继续监听其他消息
             log.error("处理 Redis 过期消息时出错", e);

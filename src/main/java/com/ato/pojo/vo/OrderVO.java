@@ -1,8 +1,6 @@
 package com.ato.pojo.vo;
 
 import com.ato.enumeration.OrderStatus;
-import com.ato.pojo.dto.user.PassengerDTO;
-import com.ato.pojo.entity.Passenger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,5 +45,5 @@ public class OrderVO {
     /**
      * 乘客列表
      */
-    private List<PassengerDTO> passengerDTOs;
+    private List<OrderPassengerVO> passengers;
 }

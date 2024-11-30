@@ -8,7 +8,6 @@ import com.ato.pojo.result.PageResult;
 import com.ato.pojo.result.Result;
 import com.ato.pojo.dto.user.PassengerDTO;
 import com.ato.pojo.entity.Passenger;
-import com.ato.pojo.vo.PassengerVO;
 import com.ato.service.PassengerService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -71,11 +70,11 @@ public class PassengerServiceImpl implements PassengerService {
     public Result pageQuery(PassengerPageQueryDTO passengerPageQueryDTO) {
         //select * from passenger limit 0,10
         PageHelper.startPage(passengerPageQueryDTO.getPage(),passengerPageQueryDTO.getPageSize());
-        Page<PassengerVO> page= passengerMapper.pageQueryWithPhone(passengerPageQueryDTO);
+        Page<com.ato.pojo.vo.PassengerVO> page= passengerMapper.pageQueryWithPhone(passengerPageQueryDTO);
         log.info("{}",page);
 
         long total = page.getTotal();
-        List<PassengerVO> records = page.getResult();
+        List<com.ato.pojo.vo.PassengerVO> records = page.getResult();
         PageResult pageResult = new PageResult(total, records);
         return Result.success(pageResult);
     }

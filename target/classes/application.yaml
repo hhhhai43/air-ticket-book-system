@@ -21,6 +21,8 @@ spring:
         time-between-eviction-runs: 10s
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+    date-format: "yyyy-MM-dd HH:mm:ss"
+
 mybatis-plus:
   type-aliases-package: com.air-ticket-order.entity # 别名扫描包
 
@@ -54,4 +56,3 @@ mybatis:
   configuration:
     #开启驼峰命名
     map-underscore-to-camel-case: true
-

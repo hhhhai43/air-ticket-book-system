@@ -20,10 +20,13 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -67,6 +70,16 @@ public class FlightServiceImpl implements FlightService {
 
             // 将座位信息存储到 Redis 中，使用航班号+日期作为键，座位号作为字段，初始化值为空
             hashOps.putAll(RedisConstants.FLIGHT_SEATS_PREFIX + flightKey, seatMap);
+
+            // 设置座位表的过期时间，假设航班结束时间为 arrivalTime
+            LocalDateTime arrivalTime = flightDTO.getArrivalTime();
+            Duration duration = Duration.between(LocalDateTime.now(), arrivalTime);  // 计算从现在到航班结束的剩余时间
+            long expirationTimeInSeconds = duration.getSeconds(); // 转换为秒
+
+            // 设置过期时间
+            if (expirationTimeInSeconds > 0) {
+                stringRedisTemplate.expire(RedisConstants.FLIGHT_SEATS_PREFIX + flightKey, expirationTimeInSeconds, TimeUnit.SECONDS);
+            }
 
         }else{
             log.info("{}",flights);

@@ -16,6 +16,7 @@ import com.ato.pojo.entity.Flight;
 import com.ato.pojo.entity.Order;
 import com.ato.pojo.result.Result;
 import com.ato.pojo.vo.FlightVO;
+import com.ato.pojo.vo.OrderPassengerVO;
 import com.ato.pojo.vo.OrderVO;
 import com.ato.service.OrderService;
 import com.ato.utils.RedisIdWorker;
@@ -75,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
         Flight flight = flights.get(0);
 
         // 合成航班的起飞时间（日期 + 起飞时间）
-        LocalDateTime flightDepartureDateTime = LocalDateTime.of(flight.getDate(), flight.getDepartureTime());
+        LocalDateTime flightDepartureDateTime = flight.getDepartureTime();
         // 判断当前时间是否在航班起飞前两小时内
         if (LocalDateTime.now().isAfter(flightDepartureDateTime.minusHours(2))) {
             return Result.error("当前时间不再销售该机票");
@@ -97,37 +98,27 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    /**
-     * 创建订单
-     * @param userId
-     * @param flightId
-     * @param price
-     * @param ticketOrderDTO
-     * @return
-     */
     @Transactional
     public Result createOrder(Long userId, Long flightId, BigDecimal price, TicketOrderDTO ticketOrderDTO) {
         List<PassengerDTO> passengers = ticketOrderDTO.getPassengerDTOs();
         if (passengers == null || passengers.isEmpty()) {
             return Result.error("乘客信息不能为空");
         }
+
         // 判断库存是否足够
         String flightKey = ticketOrderDTO.getFlightNumber() + "_" + ticketOrderDTO.getDate().toString();
 
-        if(passengers.size() > Integer.parseInt(
+        if (passengers.size() > Integer.parseInt(
                 Objects.requireNonNull(stringRedisTemplate.opsForHash()
-                        .get(RedisConstants.REMAIN_TICKETS_KEY, flightKey)).toString()))
-        {
+                        .get(RedisConstants.REMAIN_TICKETS_KEY, flightKey)).toString())) {
             return Result.error("余票不足");
         }
 
         // 判断乘客是否已经有人购买该次航班
-        // 获取指定航班号的所有座位信息
-        Map<Object, Object> seatMap = stringRedisTemplate.opsForHash().entries(RedisConstants.FLIGHT_SEATS_PREFIX+flightKey);
+        Map<Object, Object> seatMap = stringRedisTemplate.opsForHash().entries(RedisConstants.FLIGHT_SEATS_PREFIX + flightKey);
 
-        // 遍历所有座位信息，查看是否有乘客与目标乘客匹配
-        for(PassengerDTO passenger:passengers){
-            if(seatMap.containsValue(passenger.getIdNumber())){
+        for (PassengerDTO passenger : passengers) {
+            if (seatMap.containsValue(passenger.getIdNumber())) {
                 return Result.error("已有乘客购买该次航班");
             }
         }
@@ -135,27 +126,30 @@ public class OrderServiceImpl implements OrderService {
         // 乘客未购买机票，机票数量减少，为乘客分配座位
         stringRedisTemplate.opsForHash().increment(RedisConstants.REMAIN_TICKETS_KEY, flightKey, -passengers.size());
 
-        // 4. 分配座位（座位号对应乘客ID）
-        int passengerCount = passengers.size();
+        // 分配座位并记录每个乘客的座位号
         int availableSeatsCount = 0;
-
-        // 遍历所有座位，寻找空闲座位并进行分配
         Map<String, String> seatAssignments = new HashMap<>();
+        List<OrderPassengerVO> orderPassengerVOs = new ArrayList<>();  // 用于存储带座位号的乘客信息
+
         for (Map.Entry<Object, Object> entry : seatMap.entrySet()) {
             String seatNumber = (String) entry.getKey();
             String currentPassengerId = (String) entry.getValue();
 
-            // 如果座位当前未被占用（值为null或空），则分配给乘客
             if (currentPassengerId == null || currentPassengerId.isEmpty()) {
-                if (availableSeatsCount < passengerCount) {
-                    // 为乘客分配该座位
+                if (availableSeatsCount < passengers.size()) {
+                    // 为乘客分配座位号
+                    OrderPassengerVO orderPassengerVO = new OrderPassengerVO();
+                    BeanUtils.copyProperties(passengers.get(availableSeatsCount), orderPassengerVO);
+                    orderPassengerVO.setSeatNumber(seatNumber);  // 设置座位号
+                    orderPassengerVOs.add(orderPassengerVO);
+
+                    // 更新座位信息
                     seatAssignments.put(seatNumber, passengers.get(availableSeatsCount).getIdNumber());
                     availableSeatsCount++;
                 }
             }
 
-            // 如果已经为所有乘客分配了座位，跳出循环
-            if (availableSeatsCount == passengerCount) {
+            if (availableSeatsCount == passengers.size()) {
                 break;
             }
         }
@@ -163,41 +157,40 @@ public class OrderServiceImpl implements OrderService {
         // 保存座位表
         stringRedisTemplate.opsForHash().putAll(RedisConstants.FLIGHT_SEATS_PREFIX + flightKey, seatAssignments);
 
-        // 创建订单并保存订单到数据库
+        // 创建订单
         Order order = new Order();
         long orderId = redisIdWorker.nextId(RedisConstants.FLIGHT_ORDER_PREFIX);
-        order.setId(orderId);//订单id
-        order.setStatus(OrderStatus.PENDING);//订单状态
-        order.setFlightId(flightId);//航班号
-        order.setTotalAmount(price.multiply(BigDecimal.valueOf(passengers.size())));//订单金额
-        order.setUserId(userId);//用户id
+        order.setId(orderId);
+        order.setStatus(OrderStatus.PENDING);
+        order.setFlightId(flightId);
+        order.setTotalAmount(price.multiply(BigDecimal.valueOf(passengers.size())));
+        order.setUserId(userId);
 
         // 将乘客信息保存到 order_passenger 表中
-        //    1. 直接构造批量插入的 List
         List<Map<String, Object>> orderPassengerList = new ArrayList<>();
-        for (PassengerDTO passenger : passengers) {
+        for (OrderPassengerVO orderPassengerVO : orderPassengerVOs) {
             Map<String, Object> map = new HashMap<>();
-            map.put("orderId", orderId);             // 设置订单 ID
-            map.put("passengerId", passengerMapper.getIdByIdNumber(passenger.getIdNumber()));  // 设置乘客 ID
-            orderPassengerList.add(map);             // 将每个乘客的 orderId 和 passengerId 加入列表
+            map.put("orderId", orderId);
+            map.put("passengerId", passengerMapper.getIdByIdNumber(orderPassengerVO.getIdNumber()));
+            orderPassengerList.add(map);
         }
 
-        //    2. 使用批量插入的方法一次性插入所有乘客信息
         if (!orderPassengerList.isEmpty()) {
             orderMapper.saveOrderPassengersBatch(orderPassengerList);
         }
 
+        // 将乘客信息保存到 Redis 中
         try {
-            // 使用 JacksonObjectMapper 序列化乘客信息为 JSON 字符串
-            String passengersJson = jacksonObjectMapper.writeValueAsString(ticketOrderDTO.getPassengerDTOs());
-            // 存储订单乘客信息到 Redis 中，使用 String 类型保存 JSON 格式的乘客信息
+            // 使用 Jackson 将带座位号的乘客信息序列化为 JSON
+            String passengersJson = jacksonObjectMapper.writeValueAsString(orderPassengerVOs);
+            // 保存到 Redis
             stringRedisTemplate.opsForValue().set(RedisConstants.FLIGHT_ORDER_PREFIX + orderId, passengersJson);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return Result.error("订单处理失败");
         }
 
-        // 设置key的超时时间为 30 分钟
+        // 设置订单超时时间
         stringRedisTemplate.opsForValue().set(RedisConstants.FLIGHT_ORDER_PREFIX + RedisConstants.COUNTDOWN + orderId, "");
         stringRedisTemplate.expire(RedisConstants.FLIGHT_ORDER_PREFIX + RedisConstants.COUNTDOWN + orderId, 30, TimeUnit.MINUTES);
         orderMapper.saveOrder(order);
@@ -207,12 +200,13 @@ public class OrderServiceImpl implements OrderService {
         FlightVO flightVO = new FlightVO();
         Flight flight = flightMapper.queryById(flightId);
         BeanUtils.copyProperties(order, orderVO);
-        BeanUtils.copyProperties(flight,flightVO);
+        BeanUtils.copyProperties(flight, flightVO);
         orderVO.setFlightVO(flightVO);
-        orderVO.setPassengerDTOs(ticketOrderDTO.getPassengerDTOs());
+        orderVO.setPassengers(orderPassengerVOs);  // 返回 OrderPassengerVO 列表
 
         return Result.success(orderVO);
     }
+
 
     /**
      * 支付后确认订单
@@ -245,8 +239,8 @@ public class OrderServiceImpl implements OrderService {
         String passengersJson = stringRedisTemplate.opsForValue().get(orderKey);
 
         // 4. 获取订单的乘客信息
-        List<PassengerDTO> passengers;
-        passengers = JSON.parseObject(passengersJson, new TypeReference<List<PassengerDTO>>(){});
+        List<OrderPassengerVO> passengers;
+        passengers = JSON.parseObject(passengersJson, new TypeReference<List<OrderPassengerVO>>(){});
 
         // 5. 修改数据库中的订单状态为已确认
         int rowsUpdated = orderMapper.updateOrderStatus(orderId, OrderStatus.CONFIRMED);
@@ -262,7 +256,7 @@ public class OrderServiceImpl implements OrderService {
         BeanUtils.copyProperties(order, orderVO);
         BeanUtils.copyProperties(flight, flightVO);
         orderVO.setFlightVO(flightVO);
-        orderVO.setPassengerDTOs(passengers);
+        orderVO.setPassengers(passengers);
 
         // 7. 删除 Redis 中的订单信息
         stringRedisTemplate.delete(orderKey);

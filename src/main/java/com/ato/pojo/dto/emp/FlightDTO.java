@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -55,14 +56,16 @@ public class FlightDTO {
     /**
      * 起飞时间
      */
-    @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime departureTime;
+    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime departureTime;
 
     /**
      * 落地时间
      */
-    @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime arrivalTime;
+    //@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime arrivalTime;
 
     /**
      * 起飞城市
@@ -78,5 +81,4 @@ public class FlightDTO {
      * 总票数
      */
     private Long totalTickets;
-
 }

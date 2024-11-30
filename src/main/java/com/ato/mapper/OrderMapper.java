@@ -32,4 +32,7 @@ public interface OrderMapper {
     Order queryById(Long orderId);
 
     void saveOrderPassengersBatch(List<Map<String, Object>> orderPassengerList);
+
+    @Update("UPDATE orders SET status = status where id = #{id} AND status = 'CONFIRMED'")
+    void updateOrderStatusByFlightId(Long id, String 已结束);
 }

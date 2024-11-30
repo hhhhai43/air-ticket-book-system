@@ -10,6 +10,7 @@ import com.ato.mapper.FlightMapper;
 import com.ato.mapper.OrderMapper;
 import com.ato.mapper.PassengerMapper;
 import com.ato.pojo.dto.emp.FlightDTO;
+import com.ato.pojo.dto.user.ChangeTicketsDTO;
 import com.ato.pojo.dto.user.PassengerDTO;
 import com.ato.pojo.dto.user.TicketOrderDTO;
 import com.ato.pojo.entity.Flight;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -109,8 +111,8 @@ public class OrderServiceImpl implements OrderService {
         String flightKey = ticketOrderDTO.getFlightNumber() + "_" + ticketOrderDTO.getDate().toString();
 
         if (passengers.size() > Integer.parseInt(
-                Objects.requireNonNull(stringRedisTemplate.opsForHash()
-                        .get(RedisConstants.REMAIN_TICKETS_KEY, flightKey)).toString())) {
+                Objects.requireNonNull(stringRedisTemplate.opsForValue()
+                        .get(RedisConstants.REMAIN_TICKETS_KEY + flightKey)))) {
             return Result.error("余票不足");
         }
 
@@ -123,36 +125,53 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+
+        Flight flight = flightMapper.queryById(flightId);
+
         // 乘客未购买机票，机票数量减少，为乘客分配座位
-        stringRedisTemplate.opsForHash().increment(RedisConstants.REMAIN_TICKETS_KEY, flightKey, -passengers.size());
+        stringRedisTemplate.opsForValue().increment(RedisConstants.REMAIN_TICKETS_KEY + flightKey, -passengers.size());
 
         // 分配座位并记录每个乘客的座位号
         int availableSeatsCount = 0;
         Map<String, String> seatAssignments = new HashMap<>();
         List<OrderPassengerVO> orderPassengerVOs = new ArrayList<>();  // 用于存储带座位号的乘客信息
 
+        // 遍历当前航班的座位信息（seatMap），检查每个座位是否已经被占用
         for (Map.Entry<Object, Object> entry : seatMap.entrySet()) {
-            String seatNumber = (String) entry.getKey();
-            String currentPassengerId = (String) entry.getValue();
+            // 获取当前座位号（key）和已经占用该座位的乘客 ID（value）
+            String seatNumber = (String) entry.getKey();  // 座位号
+            String currentPassengerId = (String) entry.getValue();  // 当前占用该座位的乘客 ID
 
+            // 如果该座位当前未被占用（currentPassengerId 为 null 或空字符串），则可以为乘客分配该座位
             if (currentPassengerId == null || currentPassengerId.isEmpty()) {
+                // 需要分配的乘客还没有结束
                 if (availableSeatsCount < passengers.size()) {
-                    // 为乘客分配座位号
+                    // 创建一个 OrderPassengerVO 对象，用于存储乘客信息和座位号
                     OrderPassengerVO orderPassengerVO = new OrderPassengerVO();
+
+                    // 将乘客的基本信息从 passengers 列表中复制到 orderPassengerVO 对象
                     BeanUtils.copyProperties(passengers.get(availableSeatsCount), orderPassengerVO);
-                    orderPassengerVO.setSeatNumber(seatNumber);  // 设置座位号
+
+                    // 设置乘客的座位号
+                    orderPassengerVO.setSeatNumber(seatNumber);  // 将当前未占用的座位号分配给乘客
+
+                    // 将这个带座位号的乘客信息加入到 orderPassengerVOs 列表中
                     orderPassengerVOs.add(orderPassengerVO);
 
-                    // 更新座位信息
+                    // 更新座位的占用情况，将座位号和对应的乘客 ID 存入座位分配表（seatAssignments）
                     seatAssignments.put(seatNumber, passengers.get(availableSeatsCount).getIdNumber());
+
+                    // 增加已分配座位的计数
                     availableSeatsCount++;
                 }
             }
 
+            // 如果已经为所有乘客分配了座位，则跳出循环
             if (availableSeatsCount == passengers.size()) {
-                break;
+                break;  // 结束循环，不再继续分配座位
             }
         }
+
 
         // 保存座位表
         stringRedisTemplate.opsForHash().putAll(RedisConstants.FLIGHT_SEATS_PREFIX + flightKey, seatAssignments);
@@ -190,6 +209,15 @@ public class OrderServiceImpl implements OrderService {
             return Result.error("订单处理失败");
         }
 
+        // 设置座位表的过期时间，假设航班结束时间为 arrivalTime
+        LocalDateTime arrivalTime = flight.getArrivalTime();
+        Duration duration = Duration.between(LocalDateTime.now(), arrivalTime);  // 计算从现在到航班结束的剩余时间
+        long expirationTimeInSeconds = duration.getSeconds(); // 转换为秒
+
+        // 设置过期时间
+        if (expirationTimeInSeconds > 0) {
+            stringRedisTemplate.expire(RedisConstants.FLIGHT_ORDER_PREFIX + orderId, expirationTimeInSeconds, TimeUnit.SECONDS);
+        }
         // 设置订单超时时间
         stringRedisTemplate.opsForValue().set(RedisConstants.FLIGHT_ORDER_PREFIX + RedisConstants.COUNTDOWN + orderId, "");
         stringRedisTemplate.expire(RedisConstants.FLIGHT_ORDER_PREFIX + RedisConstants.COUNTDOWN + orderId, 30, TimeUnit.MINUTES);
@@ -198,7 +226,6 @@ public class OrderServiceImpl implements OrderService {
         // 返回订单数据
         OrderVO orderVO = new OrderVO();
         FlightVO flightVO = new FlightVO();
-        Flight flight = flightMapper.queryById(flightId);
         BeanUtils.copyProperties(order, orderVO);
         BeanUtils.copyProperties(flight, flightVO);
         orderVO.setFlightVO(flightVO);
@@ -259,7 +286,6 @@ public class OrderServiceImpl implements OrderService {
         orderVO.setPassengers(passengers);
 
         // 7. 删除 Redis 中的订单信息
-        stringRedisTemplate.delete(orderKey);
         stringRedisTemplate.delete(countdownKey);
 
         return Result.success(orderVO);
@@ -273,6 +299,7 @@ public class OrderServiceImpl implements OrderService {
      */
     public Result releaseSeats(Long orderId) {
         log.info("释放座位中:{}",orderId);
+        // 修改订单为已取消
         orderMapper.updateOrderStatus(orderId, OrderStatus.CANCELLED);
         // 获取订单信息
         Order order = orderMapper.queryById(orderId);
@@ -288,12 +315,12 @@ public class OrderServiceImpl implements OrderService {
         log.info("座位信息:{}",seatMap);
 
         // 获取该订单的乘客信息
-        List<PassengerDTO> passengers;
+        List<OrderPassengerVO> passengers;
         String orderKey = RedisConstants.FLIGHT_ORDER_PREFIX + orderId;
         log.info("orderKey:{}",orderKey);
         String passengersJson = stringRedisTemplate.opsForValue().get(orderKey);
         log.info("passengerJson:{}",passengersJson);
-        passengers = JSON.parseObject(passengersJson, new TypeReference<List<PassengerDTO>>(){});
+        passengers = JSON.parseObject(passengersJson, new TypeReference<List<OrderPassengerVO>>(){});
         if(passengers == null){
             return Result.error("请求错误");
         }
@@ -311,7 +338,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 遍历乘客，释放已分配的座位
-        for (PassengerDTO passenger : passengers) {
+        for (OrderPassengerVO passenger : passengers) {
             String seatNumber = passengerToSeatMap.get(passenger.getIdNumber());
             if (seatNumber != null) {
                 // 释放座位
@@ -320,11 +347,20 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 释放机票数
-        stringRedisTemplate.opsForHash().increment(RedisConstants.REMAIN_TICKETS_KEY, flightKey, passengers.size());
+        stringRedisTemplate.opsForValue().increment(RedisConstants.REMAIN_TICKETS_KEY + flightKey, passengers.size());
 
         // 删除订单乘客信息
         stringRedisTemplate.delete(orderKey);
-        return Result.success();
+
+        // 6. 订单确认成功，返回订单信息
+        OrderVO orderVO = new OrderVO();
+        FlightVO flightVO = new FlightVO();
+        flight = flightMapper.queryById(order.getFlightId());
+        BeanUtils.copyProperties(order, orderVO);
+        BeanUtils.copyProperties(flight, flightVO);
+        orderVO.setFlightVO(flightVO);
+        orderVO.setPassengers(passengers);
+        return Result.success(orderVO);
     }
 
     /**
@@ -336,5 +372,49 @@ public class OrderServiceImpl implements OrderService {
     public Result cancelOrder(Long orderId) {
         return releaseSeats(orderId);
     }
+
+    /**
+     * 退票
+     * @param orderId
+     * @return
+     */
+    @Override
+    public Result cancelTickets(Long orderId) {
+        // TODO 退钱
+        return releaseSeats(orderId);
+    }
+
+    /**
+     * 改签
+     * @param changeTicketsDTO
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result changeTickets(ChangeTicketsDTO changeTicketsDTO) {
+        // 获取旧订单ID
+        Long oldOrderId = changeTicketsDTO.getOldOrderId();
+
+        // 创建新订单
+        Result result = (Result) ticketOrder(changeTicketsDTO.getTicketOrderDTO()).getData();
+        OrderVO orderVO = (OrderVO) result.getData();
+
+        if (orderVO == null) {
+            // 如果新订单创建失败，返回错误信息
+            return Result.error(result.getMsg());
+        }
+
+        // 如果新订单创建成功，删除旧订单
+        try {
+            cancelOrder(oldOrderId);
+        } catch (Exception e) {
+            // 如果删除旧订单失败，返回错误信息
+            return Result.error("改签失败，无法取消旧订单");
+        }
+
+        // 返回确认订单的结果
+        return confirmOrder(orderVO.getId());
+    }
+
 
 }

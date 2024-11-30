@@ -1,5 +1,6 @@
 package com.ato.controller.user;
 
+import com.ato.pojo.dto.user.ChangeTicketsDTO;
 import com.ato.pojo.dto.user.TicketOrderDTO;
 import com.ato.pojo.result.Result;
 import com.ato.service.OrderService;
@@ -39,6 +40,7 @@ public class OrderController {
     @PostMapping("/pay")
     public Result pay(@RequestBody Long orderId){
         log.info("支付订单:{}",orderId);
+        // 还要调用支付接口
         return orderService.confirmOrder(orderId);
     }
 
@@ -53,4 +55,18 @@ public class OrderController {
         return orderService.cancelOrder(orderId);
     }
 
+    /**
+     * 退票
+     */
+    @PostMapping("/cancelTickets")
+    public Result cancelTickets(@RequestBody Long orderId){
+        log.info("退票:{}",orderId);
+        return orderService.cancelTickets(orderId);
+    }
+
+    @PostMapping("/changeTickets")
+    public Result changeTickets(@RequestBody ChangeTicketsDTO changeTicketsDTO){
+        log.info("改签信息:{}",changeTicketsDTO);
+        return orderService.changeTickets(changeTicketsDTO);
+    }
 }

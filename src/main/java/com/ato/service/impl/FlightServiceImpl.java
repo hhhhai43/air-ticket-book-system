@@ -51,8 +51,9 @@ public class FlightServiceImpl implements FlightService {
             Flight flight = new Flight();
             BeanUtils.copyProperties(flightDTO, flight);
             flightMapper.addFlight(flight);
-            // 保存票数至redis
-            stringRedisTemplate.opsForHash().put(RedisConstants.REMAIN_TICKETS_KEY, flightKey, flight.getTotalTickets().toString());
+            // 将航班票数存储到 Redis 中，票数使用 String 类型存储
+            stringRedisTemplate.opsForValue().set(RedisConstants.REMAIN_TICKETS_KEY + flightKey, flight.getTotalTickets().toString());
+
 
             //TODO 专门实现一个初始化座位方法，实现多种座位表的添加
 
@@ -79,6 +80,7 @@ public class FlightServiceImpl implements FlightService {
             // 设置过期时间
             if (expirationTimeInSeconds > 0) {
                 stringRedisTemplate.expire(RedisConstants.FLIGHT_SEATS_PREFIX + flightKey, expirationTimeInSeconds, TimeUnit.SECONDS);
+                stringRedisTemplate.expire(RedisConstants.REMAIN_TICKETS_KEY + flightKey, expirationTimeInSeconds, TimeUnit.SECONDS);
             }
 
         }else{

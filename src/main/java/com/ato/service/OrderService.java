@@ -1,5 +1,6 @@
 package com.ato.service;
 
+import com.ato.pojo.dto.user.ChangeTicketsDTO;
 import com.ato.pojo.dto.user.TicketOrderDTO;
 import com.ato.pojo.result.Result;
 
@@ -16,4 +17,8 @@ public interface OrderService {
     Result releaseSeats(Long orderId);
 
     Result cancelOrder(Long orderId);
+
+    Result cancelTickets(Long orderId);
+
+    Result changeTickets(ChangeTicketsDTO changeTicketsDTO);
 }

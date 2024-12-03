@@ -3,6 +3,7 @@ package com.ato.mapper;
 import com.ato.pojo.dto.user.PassengerDTO;
 import com.ato.pojo.dto.user.PassengerPageQueryDTO;
 import com.ato.pojo.entity.Passenger;
+import com.ato.pojo.vo.OrderDetailPassengerVO;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -68,4 +69,5 @@ public interface PassengerMapper {
     void updatePassenger(Long passengerId, PassengerDTO passengerDTO);
 
 
+    List<OrderDetailPassengerVO> getByIds(List<Long> ids);
 }

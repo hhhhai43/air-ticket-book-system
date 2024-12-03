@@ -21,17 +21,17 @@ public class FlightVO {
     /**
      * 航班id
      */
-    Long id;
+    private Long id;
 
     /**
      * 航班号
      */
-    String flightNumber;
+    private String flightNumber;
 
     /**
      * 航空公司
      */
-    String airline;
+    private String airline;
 
     /**
      * 机票金额
@@ -41,12 +41,12 @@ public class FlightVO {
     /**
      * 起飞机场
      */
-    String departureAirport;
+    private String departureAirport;
 
     /**
      * 落地机场
      */
-    String arrivalAirport;
+    private String arrivalAirport;
 
     /**
      * 航班日期
@@ -58,21 +58,21 @@ public class FlightVO {
      * 起飞时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    LocalDateTime departureTime;
+    private LocalDateTime departureTime;
 
     /**
      * 落地时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    LocalDateTime arrivalTime;
+    private LocalDateTime arrivalTime;
 
     /**
      * 起飞城市
      */
-    String departureCity;
+    private String departureCity;
 
     /**
      * 落地城市
      */
-    String arrivalCity;
+    private String arrivalCity;
 }

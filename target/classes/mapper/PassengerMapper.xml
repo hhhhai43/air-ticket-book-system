@@ -52,4 +52,15 @@
         ORDER BY
         p.id DESC
     </select>
+    <select id="getByIds" resultType="com.ato.pojo.vo.OrderDetailPassengerVO">
+        SELECT
+        name, id_number
+        FROM
+        passenger
+        WHERE
+        id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

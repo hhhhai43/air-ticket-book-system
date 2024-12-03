@@ -1,5 +1,7 @@
 package com.ato.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.ato.constant.RedisConstants;
@@ -11,18 +13,20 @@ import com.ato.mapper.OrderMapper;
 import com.ato.mapper.PassengerMapper;
 import com.ato.pojo.dto.emp.FlightDTO;
 import com.ato.pojo.dto.user.ChangeTicketsDTO;
+import com.ato.pojo.dto.user.OrderPageQueryDTO;
 import com.ato.pojo.dto.user.PassengerDTO;
 import com.ato.pojo.dto.user.TicketOrderDTO;
 import com.ato.pojo.entity.Flight;
 import com.ato.pojo.entity.Order;
+import com.ato.pojo.result.PageResult;
 import com.ato.pojo.result.Result;
-import com.ato.pojo.vo.FlightVO;
-import com.ato.pojo.vo.OrderPassengerVO;
-import com.ato.pojo.vo.OrderVO;
+import com.ato.pojo.vo.*;
 import com.ato.service.OrderService;
 import com.ato.utils.RedisIdWorker;
 import com.ato.utils.SimpleRedisLock;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -414,6 +418,77 @@ public class OrderServiceImpl implements OrderService {
 
         // 返回确认订单的结果
         return confirmOrder(orderVO.getId());
+    }
+
+    /**
+     * 分页查询订单
+     * @param orderPageQueryDTO
+     * @return
+     */
+    @Override
+    public Result pageQuery(OrderPageQueryDTO orderPageQueryDTO) {
+        //select * from passenger limit 0,10
+        PageHelper.startPage(orderPageQueryDTO.getPage(),orderPageQueryDTO.getPageSize());
+        Page<OrderPageQueryVO> page= orderMapper.pageQuery(orderPageQueryDTO);
+        log.info("page:{}",page);
+
+        long total = page.getTotal();
+        List<OrderPageQueryVO> records = page.getResult();
+        PageResult pageResult = new PageResult(total, records);
+        return Result.success(pageResult);
+    }
+
+    /**
+     * 根据id查询历史订单
+     * @param orderId
+     * @return
+     */
+    @Override
+    public Result queryById(Long orderId) {
+        // TODO 检查当前用户是否为订单拥有者
+        String key = RedisConstants.HISTORYORDER + orderId;
+        // 先从redis中查询
+        String orderDetailJson = stringRedisTemplate.opsForValue().get(key);
+        if(StrUtil.isNotBlank(orderDetailJson)){
+            return Result.success(JSONUtil.toBean(orderDetailJson,HistoryOrderVO.class));
+        }
+
+        // 缓存中没有，从数据库查询
+        HistoryOrderVO histOryorderVO = new HistoryOrderVO();
+        // 获取订单基本信息
+        Order order = orderMapper.queryById(orderId);
+
+        // 获取航班信息
+        Flight flight = flightMapper.queryById(order.getFlightId());
+        FlightVO flightVO = new FlightVO();
+        BeanUtils.copyProperties(flight, flightVO);
+
+        // 获取乘客信息
+        List<Long> ids = orderMapper.getPassengers(orderId);
+        List<OrderDetailPassengerVO> passengers = passengerMapper.getByIds(ids);
+
+        BeanUtils.copyProperties(order, histOryorderVO);
+        histOryorderVO.setFlightVO(flightVO);
+        histOryorderVO.setPassengers(passengers);
+
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(histOryorderVO), RedisConstants.CACHE_ORDER_TTL, TimeUnit.MINUTES);
+        return Result.success(histOryorderVO);
+    }
+
+    /**
+     * 删除订单
+     * @param orderId
+     * @return
+     */
+    @Override
+    public Result deleteOrder(Long orderId) {
+        orderMapper.deleteOrderById(orderId);
+        orderMapper.deletePassengerInOrder(orderId);
+
+        // 删除 Redis 缓存中的订单数据
+        String key = RedisConstants.HISTORYORDER + orderId;
+        stringRedisTemplate.delete(key);
+        return Result.success();
     }
 
 

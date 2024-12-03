@@ -1,15 +1,20 @@
 package com.ato;
 
+import com.ato.config.WebMvcConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 
 @EnableAspectJAutoProxy(exposeProxy = true)
 @SpringBootApplication
-public class DemoApplication {
+@Configuration
+public class DemoApplication{
 
-	// TODO
+	// TODO 完事！
 	/**
 	  <p>
 	 机票管理：购买机票，改签，退票
@@ -19,9 +24,9 @@ public class DemoApplication {
 	 			** 超时或取消订单（订单状态改为已取消）**
 	 			** 航班结束（订单状态由进行中改为已完成）**
 	 退票：		** 释放座位和机票，订单状态改为已取消 **
-	 改签：		释放原座位和机票，创建新订单
+	 改签：		** 释放原座位和机票，创建新订单 **
 	  <p>
-	  订单管理： 	查询历史订单，删除订单，恢复历史订单数据
+	  订单管理： 	** 查询历史订单，删除订单，恢复历史订单数据 **
 	 */
 	void nothing(){};
 
@@ -37,5 +42,6 @@ public class DemoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 	}
+
 
 }

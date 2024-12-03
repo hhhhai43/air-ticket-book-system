@@ -1,8 +1,9 @@
 package com.ato.service;
 
-import com.ato.pojo.dto.user.ChangeTicketsDTO;
-import com.ato.pojo.dto.user.TicketOrderDTO;
-import com.ato.pojo.result.Result;
+import com.ato.dao.dto.user.ChangeTicketsDTO;
+import com.ato.dao.dto.user.OrderPageQueryDTO;
+import com.ato.dao.dto.user.TicketOrderDTO;
+import com.ato.dao.result.Result;
 
 import java.math.BigDecimal;
 
@@ -21,4 +22,10 @@ public interface OrderService {
     Result cancelTickets(Long orderId);
 
     Result changeTickets(ChangeTicketsDTO changeTicketsDTO);
+
+    Result pageQuery(OrderPageQueryDTO orderPageQueryDTO);
+
+    Result queryById(Long orderId);
+
+    Result deleteOrder(Long orderId);
 }

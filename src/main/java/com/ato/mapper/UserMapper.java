@@ -2,7 +2,7 @@ package com.ato.mapper;
 
 import com.ato.annotation.AutoFill;
 import com.ato.enumeration.OperationType;
-import com.ato.pojo.entity.User;
+import com.ato.dao.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

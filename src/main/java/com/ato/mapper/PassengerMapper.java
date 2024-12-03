@@ -1,8 +1,10 @@
 package com.ato.mapper;
 
-import com.ato.pojo.dto.user.PassengerDTO;
-import com.ato.pojo.dto.user.PassengerPageQueryDTO;
-import com.ato.pojo.entity.Passenger;
+import com.ato.dao.dto.user.PassengerDTO;
+import com.ato.dao.dto.user.PassengerPageQueryDTO;
+import com.ato.dao.entity.Passenger;
+import com.ato.dao.vo.OrderDetailPassengerVO;
+import com.ato.dao.vo.PassengerVO;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -28,6 +30,11 @@ public interface PassengerMapper {
      */
     void addPassenger(Passenger passenger);
 
+    /**
+     * 根据身份证号查询乘客
+     * @param idNumber
+     * @return
+     */
     @Select("select id from passenger where id_number = #{idNumber}")
     Long getIdByIdNumber(String idNumber);
 
@@ -51,7 +58,7 @@ public interface PassengerMapper {
      * @param passengerPageQueryDTO
      * @return
      */
-    Page<com.ato.pojo.vo.PassengerVO> pageQueryWithPhone(PassengerPageQueryDTO passengerPageQueryDTO);
+    Page<PassengerVO> pageQueryWithPhone(PassengerPageQueryDTO passengerPageQueryDTO);
 
     /**
      * 根据id批量删除乘客与用户关联信息
@@ -62,10 +69,33 @@ public interface PassengerMapper {
 
     /**
      * 更新乘客信息
+     *
      * @param passengerId
+     * @param userId
      * @param passengerDTO
      */
-    void updatePassenger(Long passengerId, PassengerDTO passengerDTO);
+    void updatePassenger(Long passengerId, Long userId, PassengerDTO passengerDTO);
 
 
+    /**
+     * 根据id查询乘客信息
+     * @param ids
+     * @return
+     */
+    List<OrderDetailPassengerVO> getByIds(List<Long> ids);
+
+    /**
+     *
+     根据订单 ID 获取乘客 ID 列表
+      */
+    @Select("SELECT passenger_id FROM order_passenger WHERE order_id = #{orderId}")
+    List<Long> getPassengerIdsByOrderId(Long orderId);
+
+    /**
+     * 获取乘客DTO信息
+     * @param orderId
+     * @param userId
+     * @return
+     */
+    List<PassengerDTO> getPassengerDetailsByOrderIdAndUserId(Long orderId, Long userId);
 }

@@ -1,15 +1,14 @@
 package com.ato.controller.user;
 
-import com.ato.pojo.dto.user.ChangeTicketsDTO;
-import com.ato.pojo.dto.user.TicketOrderDTO;
-import com.ato.pojo.result.Result;
+import com.ato.context.BaseContext;
+import com.ato.dao.dto.user.ChangeTicketsDTO;
+import com.ato.dao.dto.user.OrderPageQueryDTO;
+import com.ato.dao.dto.user.TicketOrderDTO;
+import com.ato.dao.result.Result;
 import com.ato.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 订单控制类
@@ -64,9 +63,43 @@ public class OrderController {
         return orderService.cancelTickets(orderId);
     }
 
+    /**
+     * 改签
+     * @param changeTicketsDTO
+     * @return
+     */
     @PostMapping("/changeTickets")
     public Result changeTickets(@RequestBody ChangeTicketsDTO changeTicketsDTO){
         log.info("改签信息:{}",changeTicketsDTO);
         return orderService.changeTickets(changeTicketsDTO);
+    }
+
+    /**
+     * 查询历史订单列表
+     * @param orderPageQueryDTO
+     * @return
+     */
+    @GetMapping("/queryOrder")
+    public Result pageQueryOrder(OrderPageQueryDTO orderPageQueryDTO){
+        orderPageQueryDTO.setUserId(BaseContext.getCurrentId());
+        log.info("员工分页查询，参数为:{}", orderPageQueryDTO);
+        return orderService.pageQuery(orderPageQueryDTO);
+    }
+
+    /**
+     * 查询历史订单详情
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/orderDetail")
+    public Result orderDetail(Long orderId){
+        log.info("查询订单:{}详情",orderId);
+        return orderService.queryById(orderId);
+    }
+
+    @DeleteMapping("/deleteOrder")
+    public Result deleteOrder(@RequestParam Long orderId){
+        log.info("删除订单:{}",orderId);
+        return orderService.deleteOrder(orderId);
     }
 }

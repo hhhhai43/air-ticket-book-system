@@ -4,8 +4,7 @@ import com.ato.constant.RedisConstants;
 import com.ato.enumeration.OrderStatus;
 import com.ato.mapper.FlightMapper;
 import com.ato.mapper.OrderMapper;
-import com.ato.pojo.entity.Flight;
-import com.ato.service.OrderService;
+import com.ato.dao.entity.Flight;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
@@ -41,6 +40,9 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
             // 获取过期键的字节数组并转换为字符串
             String expiredKey = new String(message.getBody(), StandardCharsets.UTF_8);
 
+            /**
+              订单超时删除
+             */
             // 判断接收到的消息是否包含特定的过期键前缀（即 COUNTDOWN 键）
             if (expiredKey.contains(RedisConstants.COUNTDOWN)) {
 
@@ -64,6 +66,9 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
                 orderService.releaseSeats(orderId);
             }
 
+            /**
+             * 航班结束后更新订单状态
+             */
             // 判断过期的 key 是否是座位信息的 key (例如：FLIGHT_SEATS_PREFIX + flightKey)
             if (expiredKey.startsWith(RedisConstants.FLIGHT_SEATS_PREFIX)) {
                 // 提取航班号和日期

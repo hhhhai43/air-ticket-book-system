@@ -34,8 +34,8 @@
 
     <select id="pageQuery" resultType="com.ato.pojo.vo.FlightVO">
         SELECT
-        id, airline, price, departure_airport, arrival_airport, date,
-        departure_time, arrival_time, departure_city, arrival_city
+        id, flight_number, airline, price, departure_airport, arrival_airport, date,
+        departure_time, arrival_time, departure_city, arrival_city, delay, delay_time, delay_reason
         FROM
         flights
         <where>
@@ -81,7 +81,7 @@
     <select id="query" resultType="com.ato.pojo.entity.Flight">
         SELECT
         id, airline, price, departure_airport, arrival_airport, date,
-        departure_time, arrival_time, departure_city, arrival_city
+        departure_time, arrival_time, departure_city, arrival_city, delay, delay_time, delay_reason
         FROM
         flights
         <where>
@@ -92,6 +92,14 @@
                 AND date = #{date}
             </if>
         </where>
+    </select>
+    <select id="queryByNumberAndDate" resultType="com.ato.pojo.entity.Flight">
+        SELECT
+        id, airline, price, departure_airport, arrival_airport, date,
+        departure_time, arrival_time, departure_city, arrival_city, delay, delay_time, delay_reason
+        FROM
+        flights
+        where flight_number = #{flightNumber} and date = #{date}
     </select>
 
 </mapper>

@@ -16,15 +16,37 @@
             (#{item.orderId}, #{item.passengerId})
         </foreach>
     </insert>
-
-    <!--<update id="updateDelay">
-        update flights
-        <set>
-            <if test="delay != null">delay = #{delay},</if>
-            <if test="delayTime != null">delay_time = #{delayTime},</if>
-            <if test="delayReason != null">delay_reason = #{delayReason},</if>
-        </set>
-        where id = #{id}
-    </update>-->
+    <delete id="deleteOrderById">
+        delete from orders where id = #{orderId}
+    </delete>
+    <delete id="deletePassengerInOrder">
+        delete from order_passenger where order_id = #{orderId}
+    </delete>
+    <select id="pageQuery" resultType="com.ato.dao.vo.OrderPageQueryVO">
+        select
+            o.id as id,
+            o.total_amount as totalAmount,
+            o.status as status,
+            f.departure_time as departureTime,
+            f.arrival_time as arrivalTime,
+            f.departure_airport as departureAirport,
+            f.arrival_airport as arrivalAirport,
+            f.departure_city as departureCity,
+            f.arrival_city as arrivalCity,
+            f.flight_number as flightNumber
+        from
+            orders o
+        join
+            flights f on o.flight_id = f.id
+        where
+            o.user_id = #{userId}
+        order by
+            o.create_time desc
+    </select>
+    <select id="getPassengers" resultType="java.lang.Long">
+        SELECT passenger_id
+        FROM order_passenger
+        WHERE order_id = #{orderId}
+    </select>
 
 </mapper>

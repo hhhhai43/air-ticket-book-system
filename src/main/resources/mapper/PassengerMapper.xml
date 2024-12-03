@@ -20,7 +20,7 @@
         <set>
             <if test="passengerDTO.phonenumber != null">passenger_phonenumber = #{passengerDTO.phonenumber},</if>
         </set>
-        where user_id = #{passengerDTO.userId} and passenger_id = #{passengerId}
+        where user_id = #{userId} and passenger_id = #{passengerId}
     </update>
 
     <delete id="deleteByIds">
@@ -37,7 +37,7 @@
         WHERE user_id = #{userId} AND passenger_id = #{passengerId}
     </select>
 
-    <select id="pageQueryWithPhone" resultType="com.ato.pojo.vo.PassengerVO">
+    <select id="pageQueryWithPhone" resultType="com.ato.dao.vo.PassengerVO">
         SELECT
         p.id AS id,
         p.name AS name,
@@ -51,5 +51,31 @@
         up.user_id = #{id}
         ORDER BY
         p.id DESC
+    </select>
+    <select id="getByIds" resultType="com.ato.dao.vo.OrderDetailPassengerVO">
+        SELECT
+        name, id_number
+        FROM
+        passenger
+        WHERE
+        id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 查询订单中的乘客详细信息 -->
+    <select id="getPassengerDetailsByOrderIdAndUserId" resultType="com.ato.dao.dto.user.PassengerDTO">
+        SELECT
+        p.name,
+        p.id_number,
+        up.passenger_phonenumber
+        FROM
+        order_passenger op
+        JOIN passenger p ON op.passenger_id = p.id
+        JOIN user_passenger up ON op.passenger_id = up.passenger_id
+        WHERE
+        op.order_id = #{orderId}
+        AND up.user_id = #{userId}
     </select>
 </mapper>

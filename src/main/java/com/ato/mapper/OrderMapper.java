@@ -3,12 +3,14 @@ package com.ato.mapper;
 import com.ato.annotation.AutoFill;
 import com.ato.enumeration.OperationType;
 import com.ato.enumeration.OrderStatus;
-import com.ato.pojo.entity.Order;
+import com.ato.dao.dto.user.OrderPageQueryDTO;
+import com.ato.dao.entity.Order;
+import com.ato.dao.vo.OrderPageQueryVO;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -35,4 +37,17 @@ public interface OrderMapper {
 
     @Update("UPDATE orders SET status = status where id = #{id} AND status = 'CONFIRMED'")
     void updateOrderStatusByFlightId(Long id, String 已结束);
+
+    /**
+     * 分页查询订单
+     * @param orderPageQueryDTO
+     * @return
+     */
+    Page<OrderPageQueryVO> pageQuery(OrderPageQueryDTO orderPageQueryDTO);
+
+    List<Long> getPassengers(Long orderId);
+
+    void deleteOrderById(Long orderId);
+
+    void deletePassengerInOrder(Long orderId);
 }

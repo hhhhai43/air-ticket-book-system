@@ -3,11 +3,12 @@ package com.ato.service.impl;
 import com.ato.constant.MessageConstant;
 import com.ato.context.BaseContext;
 import com.ato.mapper.PassengerMapper;
-import com.ato.pojo.dto.user.PassengerPageQueryDTO;
-import com.ato.pojo.result.PageResult;
-import com.ato.pojo.result.Result;
-import com.ato.pojo.dto.user.PassengerDTO;
-import com.ato.pojo.entity.Passenger;
+import com.ato.dao.dto.user.PassengerPageQueryDTO;
+import com.ato.dao.result.PageResult;
+import com.ato.dao.result.Result;
+import com.ato.dao.dto.user.PassengerDTO;
+import com.ato.dao.entity.Passenger;
+import com.ato.dao.vo.PassengerVO;
 import com.ato.service.PassengerService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -35,10 +36,9 @@ public class PassengerServiceImpl implements PassengerService {
      */
     @Override
     public Result addPassenger(PassengerDTO passengerDTO) {
-        // 检查请求id与当前用户id是否一致
         Long userId = BaseContext.getCurrentId();
 
-        //判断是否已存在乘客数据
+        // 判断是否已存在乘客数据
         Passenger passenger = passengerMapper.getPassengerByIdNumber(passengerDTO.getIdNumber());
         //不存在则添加
         if(passenger == null){
@@ -70,11 +70,11 @@ public class PassengerServiceImpl implements PassengerService {
     public Result pageQuery(PassengerPageQueryDTO passengerPageQueryDTO) {
         //select * from passenger limit 0,10
         PageHelper.startPage(passengerPageQueryDTO.getPage(),passengerPageQueryDTO.getPageSize());
-        Page<com.ato.pojo.vo.PassengerVO> page= passengerMapper.pageQueryWithPhone(passengerPageQueryDTO);
+        Page<PassengerVO> page= passengerMapper.pageQueryWithPhone(passengerPageQueryDTO);
         log.info("{}",page);
 
         long total = page.getTotal();
-        List<com.ato.pojo.vo.PassengerVO> records = page.getResult();
+        List<PassengerVO> records = page.getResult();
         PageResult pageResult = new PageResult(total, records);
         return Result.success(pageResult);
     }
@@ -99,11 +99,12 @@ public class PassengerServiceImpl implements PassengerService {
      */
     @Override
     public Result updatePassenger(PassengerDTO passengerDTO) {
+        Long userId = BaseContext.getCurrentId();
         // 根据身份证号获取乘客信息
         Passenger passenger = passengerMapper.getPassengerByIdNumber(passengerDTO.getIdNumber());
         // 不存在乘客则添加乘客
         if(passenger == null){
-            return addPassenger(passengerDTO);
+            return Result.error(MessageConstant.ID_NOT_FOUND);
         }
         // 校验身份证号与姓名是否正确
         if(!Objects.equals(passenger.getName(), passengerDTO.getName())){
@@ -111,7 +112,7 @@ public class PassengerServiceImpl implements PassengerService {
         }
         // 获取乘客id
         Long passengerId = passenger.getId();
-        passengerMapper.updatePassenger(passengerId, passengerDTO);
+        passengerMapper.updatePassenger(passengerId, userId, passengerDTO);
         return Result.success();
     }
 }

@@ -1,8 +1,8 @@
 package com.ato.controller.employee;
 
-import com.ato.pojo.dto.emp.DelayDTO;
-import com.ato.pojo.dto.emp.FlightDTO;
-import com.ato.pojo.result.Result;
+import com.ato.dao.dto.emp.DelayDTO;
+import com.ato.dao.dto.emp.FlightDTO;
+import com.ato.dao.result.Result;
 import com.ato.service.FlightService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +35,10 @@ public class FlightController {
     public Result updateDelay(@RequestBody DelayDTO delayDTO){
         log.info("延误信息：{}",delayDTO);
         return flightService.updateDelay(delayDTO);
+    }
+
+    @GetMapping("/getAllFlights")
+    public Result getAllFlights(){
+        return flightService.getAllFlights();
     }
 }

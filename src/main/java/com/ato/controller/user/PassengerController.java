@@ -1,8 +1,8 @@
 package com.ato.controller.user;
 
-import com.ato.pojo.dto.user.PassengerPageQueryDTO;
-import com.ato.pojo.result.Result;
-import com.ato.pojo.dto.user.PassengerDTO;
+import com.ato.dao.dto.user.PassengerPageQueryDTO;
+import com.ato.dao.result.Result;
+import com.ato.dao.dto.user.PassengerDTO;
 import com.ato.service.PassengerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

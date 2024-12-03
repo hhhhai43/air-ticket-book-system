@@ -1,7 +1,6 @@
 package com.ato;
 
 import com.ato.constant.RedisConstants;
-import com.ato.pojo.dto.user.TicketOrderDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

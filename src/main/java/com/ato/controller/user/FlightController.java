@@ -1,7 +1,7 @@
 package com.ato.controller.user;
 
-import com.ato.pojo.dto.user.FlightPageQueryDTO;
-import com.ato.pojo.result.Result;
+import com.ato.dao.dto.user.FlightPageQueryDTO;
+import com.ato.dao.result.Result;
 import com.ato.service.FlightService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

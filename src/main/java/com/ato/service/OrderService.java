@@ -1,9 +1,9 @@
 package com.ato.service;
 
-import com.ato.dao.dto.user.ChangeTicketsDTO;
-import com.ato.dao.dto.user.OrderPageQueryDTO;
-import com.ato.dao.dto.user.TicketOrderDTO;
-import com.ato.dao.result.Result;
+import com.ato.pojo.dto.user.ChangeTicketsDTO;
+import com.ato.pojo.dto.user.OrderPageQueryDTO;
+import com.ato.pojo.dto.user.TicketOrderDTO;
+import com.ato.pojo.result.Result;
 
 import java.math.BigDecimal;
 

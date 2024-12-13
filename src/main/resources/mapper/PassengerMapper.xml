@@ -37,7 +37,7 @@
         WHERE user_id = #{userId} AND passenger_id = #{passengerId}
     </select>
 
-    <select id="pageQueryWithPhone" resultType="com.ato.dao.vo.PassengerVO">
+    <select id="pageQueryWithPhone" resultType="com.ato.pojo.vo.PassengerVO">
         SELECT
         p.id AS id,
         p.name AS name,
@@ -52,7 +52,7 @@
         ORDER BY
         p.id DESC
     </select>
-    <select id="getByIds" resultType="com.ato.dao.vo.OrderDetailPassengerVO">
+    <select id="getByIds" resultType="com.ato.pojo.vo.OrderDetailPassengerVO">
         SELECT
         name, id_number
         FROM
@@ -65,7 +65,7 @@
     </select>
 
     <!-- 查询订单中的乘客详细信息 -->
-    <select id="getPassengerDetailsByOrderIdAndUserId" resultType="com.ato.dao.dto.user.PassengerDTO">
+    <select id="getPassengerDetailsByOrderIdAndUserId" resultType="com.ato.pojo.dto.user.PassengerDTO">
         SELECT
         p.name,
         p.id_number,

@@ -1,6 +1,6 @@
 package com.ato.mapper;
 
-import com.ato.dao.entity.Employee;
+import com.ato.pojo.entity.Employee;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

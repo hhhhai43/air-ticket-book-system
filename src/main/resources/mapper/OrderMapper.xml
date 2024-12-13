@@ -22,7 +22,7 @@
     <delete id="deletePassengerInOrder">
         delete from order_passenger where order_id = #{orderId}
     </delete>
-    <select id="pageQuery" resultType="com.ato.dao.vo.OrderPageQueryVO">
+    <select id="pageQuery" resultType="com.ato.pojo.vo.OrderPageQueryVO">
         select
             o.id as id,
             o.total_amount as totalAmount,

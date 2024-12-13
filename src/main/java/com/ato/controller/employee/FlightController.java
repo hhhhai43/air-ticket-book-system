@@ -1,8 +1,9 @@
 package com.ato.controller.employee;
 
-import com.ato.dao.dto.emp.DelayDTO;
-import com.ato.dao.dto.emp.FlightDTO;
-import com.ato.dao.result.Result;
+import com.ato.pojo.dto.emp.DelayDTO;
+import com.ato.pojo.dto.emp.FlightDTO;
+import com.ato.pojo.dto.user.FlightPageQueryDTO;
+import com.ato.pojo.result.Result;
 import com.ato.service.FlightService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +38,13 @@ public class FlightController {
         return flightService.updateDelay(delayDTO);
     }
 
+    /**
+     * 查询所有航班
+     * @return
+     */
     @GetMapping("/getAllFlights")
-    public Result getAllFlights(){
-        return flightService.getAllFlights();
+    public Result getAllFlights(FlightPageQueryDTO flightPageQueryDTO){
+        //return flightService.getAllFlights();
+        return flightService.pageQueryFlight(flightPageQueryDTO);
     }
 }

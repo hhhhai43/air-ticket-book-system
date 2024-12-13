@@ -1,7 +1,7 @@
 package com.ato.controller.employee;
 
-import com.ato.dao.dto.emp.EmployeeLoginDTO;
-import com.ato.dao.result.Result;
+import com.ato.pojo.dto.emp.EmployeeLoginDTO;
+import com.ato.pojo.result.Result;
 import com.ato.service.EmpService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ public class EmpController {
 
     /**
      * 登录
-     *
      * @param employeeLoginDTO
      * @return
      */

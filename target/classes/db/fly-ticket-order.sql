@@ -31,7 +31,6 @@ CREATE TABLE `flights` (
   `departure_city` varchar(50) DEFAULT NULL,
   `arrival_city` varchar(50) DEFAULT NULL,
   `total_tickets` int DEFAULT NULL,
-  `remaining_tickets` int DEFAULT NULL,
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -87,23 +86,6 @@ CREATE TABLE `seats` (
   `flight_id` int DEFAULT NULL,
   `seat_number` varchar(5) DEFAULT NULL,
   `status` enum('Available','Booked','Reserved') DEFAULT 'Available',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `flight_id` (`flight_id`),
-  KEY `seat_number` (`seat_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Table structure for tickets
--- ----------------------------
-DROP TABLE IF EXISTS `tickets`;
-CREATE TABLE `tickets` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `flight_id` int DEFAULT NULL,
-  `seat_number` varchar(5) DEFAULT NULL,
-  `price` decimal(10,2) DEFAULT NULL,
-  `status` enum('Available','Booked','Cancelled') DEFAULT 'Available',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

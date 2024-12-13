@@ -2,11 +2,11 @@ package com.ato.mapper;
 
 import com.ato.annotation.AutoFill;
 import com.ato.enumeration.OperationType;
-import com.ato.dao.dto.emp.DelayDTO;
-import com.ato.dao.dto.emp.FlightDTO;
-import com.ato.dao.dto.user.FlightPageQueryDTO;
-import com.ato.dao.entity.Flight;
-import com.ato.dao.vo.FlightVO;
+import com.ato.pojo.dto.emp.DelayDTO;
+import com.ato.pojo.dto.emp.FlightDTO;
+import com.ato.pojo.dto.user.FlightPageQueryDTO;
+import com.ato.pojo.entity.Flight;
+import com.ato.pojo.vo.FlightVO;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

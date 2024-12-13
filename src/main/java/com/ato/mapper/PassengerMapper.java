@@ -1,10 +1,10 @@
 package com.ato.mapper;
 
-import com.ato.dao.dto.user.PassengerDTO;
-import com.ato.dao.dto.user.PassengerPageQueryDTO;
-import com.ato.dao.entity.Passenger;
-import com.ato.dao.vo.OrderDetailPassengerVO;
-import com.ato.dao.vo.PassengerVO;
+import com.ato.pojo.dto.user.PassengerDTO;
+import com.ato.pojo.dto.user.PassengerPageQueryDTO;
+import com.ato.pojo.entity.Passenger;
+import com.ato.pojo.vo.OrderDetailPassengerVO;
+import com.ato.pojo.vo.PassengerVO;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

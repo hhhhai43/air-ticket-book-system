@@ -1,9 +1,9 @@
 package com.ato.service;
 
-import com.ato.dao.dto.emp.DelayDTO;
-import com.ato.dao.dto.emp.FlightDTO;
-import com.ato.dao.dto.user.FlightPageQueryDTO;
-import com.ato.dao.result.Result;
+import com.ato.pojo.dto.emp.DelayDTO;
+import com.ato.pojo.dto.emp.FlightDTO;
+import com.ato.pojo.dto.user.FlightPageQueryDTO;
+import com.ato.pojo.result.Result;
 
 public interface FlightService {
     Result addFlight(FlightDTO flightDTO);

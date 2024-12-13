@@ -1,10 +1,10 @@
 package com.ato.controller.user;
 
-import com.ato.dao.result.Result;
-import com.ato.dao.dto.user.UserInformationDTO;
-import com.ato.dao.dto.user.UserLoginDTO;
-import com.ato.dao.dto.user.UserPasswordExchangeDTO;
-import com.ato.dao.dto.user.UserRegisterDTO;
+import com.ato.pojo.result.Result;
+import com.ato.pojo.dto.user.UserInformationDTO;
+import com.ato.pojo.dto.user.UserLoginDTO;
+import com.ato.pojo.dto.user.UserPasswordExchangeDTO;
+import com.ato.pojo.dto.user.UserRegisterDTO;
 import com.ato.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

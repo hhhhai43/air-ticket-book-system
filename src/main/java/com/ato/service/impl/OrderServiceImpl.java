@@ -12,16 +12,16 @@ import com.ato.json.JacksonObjectMapper;
 import com.ato.mapper.FlightMapper;
 import com.ato.mapper.OrderMapper;
 import com.ato.mapper.PassengerMapper;
-import com.ato.dao.dto.emp.FlightDTO;
-import com.ato.dao.dto.user.ChangeTicketsDTO;
-import com.ato.dao.dto.user.OrderPageQueryDTO;
-import com.ato.dao.dto.user.PassengerDTO;
-import com.ato.dao.dto.user.TicketOrderDTO;
-import com.ato.dao.entity.Flight;
-import com.ato.dao.entity.Order;
-import com.ato.dao.result.PageResult;
-import com.ato.dao.result.Result;
-import com.ato.dao.vo.*;
+import com.ato.pojo.dto.emp.FlightDTO;
+import com.ato.pojo.dto.user.ChangeTicketsDTO;
+import com.ato.pojo.dto.user.OrderPageQueryDTO;
+import com.ato.pojo.dto.user.PassengerDTO;
+import com.ato.pojo.dto.user.TicketOrderDTO;
+import com.ato.pojo.entity.Flight;
+import com.ato.pojo.entity.Order;
+import com.ato.pojo.result.PageResult;
+import com.ato.pojo.result.Result;
+import com.ato.pojo.vo.*;
 import com.ato.service.OrderService;
 import com.ato.utils.RedisIdWorker;
 import com.ato.utils.SimpleRedisLock;
@@ -386,6 +386,12 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public Result cancelOrder(Long orderId) {
+        String key = RedisConstants.HISTORYORDER + orderId;
+
+        String value = stringRedisTemplate.opsForValue().get(key); // 获取键的值
+        if (value != null) {
+            stringRedisTemplate.delete(key); // 删除键
+        }
         return releaseSeats(orderId);
     }
 
@@ -397,6 +403,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Result cancelTickets(Long orderId) {
         // TODO 退钱
+        String key = RedisConstants.HISTORYORDER + orderId;
+
+        String value = stringRedisTemplate.opsForValue().get(key); // 获取键的值
+        if (value != null) {
+            stringRedisTemplate.delete(key); // 删除键
+        }
         return releaseSeats(orderId);
     }
 
@@ -410,6 +422,11 @@ public class OrderServiceImpl implements OrderService {
     public Result changeTickets(ChangeTicketsDTO changeTicketsDTO) {
         // 获取旧订单ID
         Long oldOrderId = changeTicketsDTO.getOldOrderId();
+        String key = RedisConstants.HISTORYORDER + oldOrderId;
+        String value = stringRedisTemplate.opsForValue().get(key); // 获取键的值
+        if (value != null) {
+            stringRedisTemplate.delete(key); // 删除键
+        }
         // 获取订单中所有乘客的详细信息
         List<PassengerDTO> passengerDTOs = passengerMapper.getPassengerDetailsByOrderIdAndUserId(oldOrderId, BaseContext.getCurrentId());
 
@@ -493,6 +510,7 @@ public class OrderServiceImpl implements OrderService {
         histOryorderVO.setPassengers(passengers);
 
         stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(histOryorderVO), RedisConstants.CACHE_ORDER_TTL, TimeUnit.MINUTES);
+        log.info("订单详情:{}",histOryorderVO);
         return Result.success(histOryorderVO);
     }
 

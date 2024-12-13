@@ -1,10 +1,10 @@
 package com.ato.controller.user;
 
 import com.ato.context.BaseContext;
-import com.ato.dao.dto.user.ChangeTicketsDTO;
-import com.ato.dao.dto.user.OrderPageQueryDTO;
-import com.ato.dao.dto.user.TicketOrderDTO;
-import com.ato.dao.result.Result;
+import com.ato.pojo.dto.user.ChangeTicketsDTO;
+import com.ato.pojo.dto.user.OrderPageQueryDTO;
+import com.ato.pojo.dto.user.TicketOrderDTO;
+import com.ato.pojo.result.Result;
 import com.ato.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,7 +4,7 @@ import com.ato.constant.RedisConstants;
 import com.ato.enumeration.OrderStatus;
 import com.ato.mapper.FlightMapper;
 import com.ato.mapper.OrderMapper;
-import com.ato.dao.entity.Flight;
+import com.ato.pojo.entity.Flight;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
